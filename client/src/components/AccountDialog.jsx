@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import {useNavigate} from 'react-router-dom';
+import { tagColors } from "../data/data";
 
 const Wrapper = styled.div`
   min-width: 200px;
@@ -72,6 +73,7 @@ const OutlinedBox = styled.div`
 `;
 
 const AccountDialog = ({ open, id, anchorEl, handleClose, currentUser }) => {
+    const randomTagColor = tagColors[Math.floor(Math.random() * tagColors.length)];
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const logoutUser = () => {
@@ -93,9 +95,8 @@ const AccountDialog = ({ open, id, anchorEl, handleClose, currentUser }) => {
       <Wrapper>
         <Account>
           <Avatar
-            sx={{ width: "50px", height: "50px" }}
-            src={currentUser.img}
-          >{currentUser.name.charAt(0)}</Avatar>
+            sx={{ width: "50px", height: "50px"}}
+          >{currentUser.name.charAt(0).toUpperCase()}</Avatar>
           <Details>
             <Name>{currentUser.name}</Name>
             <Email>{currentUser.email}</Email>

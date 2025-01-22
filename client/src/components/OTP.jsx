@@ -5,7 +5,7 @@ import OtpInput from 'react-otp-input';
 import CircularProgress from "@mui/material/CircularProgress";
 import { useDispatch } from 'react-redux';
 import { openSnackbar } from "../redux/snackbarSlice";
-import { generateOtp, verifyOtp } from '../api';
+import { generateOTP, verifyOTP } from '../api';
 
 
 const Title = styled.div`
@@ -93,7 +93,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
 
-
     const [otp, setOtp] = useState('');
     const [otpError, setOtpError] = useState('');
     const [otpLoading, setOtpLoading] = useState(false);
@@ -164,7 +163,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     }
 
     const sendOtp = async () => {
-        await generateOtp(email, name, reason).then((res) => {
+        await generateOTP(email, name, reason).then((res) => {
             if (res.status === 200) {
                 dispatch(
                     openSnackbar({
@@ -200,9 +199,10 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     }
 
     const validateOtp = () => {
+        console.log("validateOtp otp: ", otp);
         setOtpLoading(true);
         setDisabled(true);
-        verifyOtp(otp).then((res) => {
+        verifyOTP(otp).then((res) => {
             if (res.status === 200) {
                 setOtpVerified(true);
                 setOtp('');
@@ -258,7 +258,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             <LoginText >A verification <b>&nbsp;OTP &nbsp;</b> has been sent to: </LoginText>
             <Span>{email}</Span>
             {!otpSent ?
-                <div style={{padding: '12px 26px', marginBottom: '20px', textAlign: 'center', display: 'flex',flexDirection: 'column',alignItems: 'center',gap: '14px',justifyContent:'center'}}>Sending OTP<CircularProgress color="inherit" size={20} /></div>
+                <div style={{ padding: '12px 26px', marginBottom: '20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', justifyContent: 'center' }}>Sending OTP<CircularProgress color="inherit" size={20} /></div>
                 :
                 <div>
                     <OtpInput

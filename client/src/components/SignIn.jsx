@@ -1,5 +1,4 @@
 import {
-  Block,
   CloseRounded,
   EmailRounded,
   Visibility,
@@ -15,10 +14,11 @@ import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
 import { useDispatch } from "react-redux";
 import validator from "validator";
-import { signIn, googleSignIn, findUserByEmail, resetPassword } from "../api/index";
+import { signIn, googleSignIn, findAccountByEmail, resetPassword } from "../api/index";
 import OTP from "./OTP";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import GoogleIcon from "../Images/google.png";
 
 const Container = styled.div`
   width: 100%;
@@ -81,8 +81,11 @@ const OutlinedBox = styled.div`
   font-weight: 500;
   padding: 0px 14px;
 `;
-const GoogleIcon = styled.img`
+const Image = styled.img`
   width: 22px;
+  // backgroundColor: white;
+  // backgroundColor: 'transparent'
+  // background-color: rgba(0, 0, 0, 0.3);
 `;
 const Divider = styled.div`
   display: flex;
@@ -189,6 +192,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       try {
         signIn({ email, password }).then((res) => {
           if (res.status === 200) {
+            console.log("signIn res.data: ",res.data);
             dispatch(loginSuccess(res.data));
             setLoading(false);
             setDisabled(false);
@@ -294,7 +298,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
     if (!resetDisabled) {
       setResetDisabled(true);
       setLoading(true);
-      findUserByEmail(email).then((res) => {
+      findAccountByEmail(email).then((res) => {
         if (res.status === 200) {
           setShowOTP(true);
           setResetDisabled(false);
@@ -379,7 +383,6 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       googleSignIn({
         name: user.data.name,
         email: user.data.email,
-        img: user.data.picture,
       }).then((res) => {
         console.log(res);
         if (res.status === 200) {
@@ -442,7 +445,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
                   <CircularProgress color="inherit" size={20} />
                 ) : (
                   <>
-                    <GoogleIcon src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1000px-Google_%22G%22_Logo.svg.png?20210618182606" />
+                    <Image src={GoogleIcon} />
                     Sign In with Google</>
                 )}
               </OutlinedBox>

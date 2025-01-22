@@ -3,31 +3,16 @@ import { useState } from "react";
 import styled from "styled-components";
 import SettingsBrightnessOutlinedIcon from "@mui/icons-material/SettingsBrightnessOutlined";
 import { Link } from "react-router-dom";
-import {
-  Add,
-  Dashboard,
-  CloseRounded,
-  Groups2Rounded,
-  HubRounded,
-  Logout,
-  StreamRounded,
-  WorkspacesRounded,
-  Public,
-  AccountTreeRounded,
-  DashboardRounded,
-  AddTaskRounded,
-} from "@mui/icons-material";
-import { tagColors } from "../data/data";
-import LogoIcon from "../Images/Logo.svg";
+import { CloseRounded, Groups2Rounded, Logout, WorkspacesRounded, AccountTreeRounded, DashboardRounded, AddTaskRounded } from "@mui/icons-material";
+import GroupsIcon from '@mui/icons-material/Groups';
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
-import axios from "axios";
 import { useSelector } from "react-redux";
-import { getUsers, notifications } from "../api/index";
-import { useNavigate } from 'react-router-dom';
+import { getUserByToken } from "../api/index";
 import { Avatar, CircularProgress } from "@mui/material";
-import Skeleton from "@mui/material/Skeleton";
+import { tagColors } from "../data/data";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   flex: 1.3;
@@ -81,14 +66,12 @@ const Close = styled.div`
   }
 `;
 
-const Image = styled.img`
-  height: 32px;
-`;
-
 const Item = styled.div`
+  font-size: 12px;
   display: flex;
-  color: ${({ theme }) => theme.itemText};
-  align-items: center;
+  margin: 5px;
+  color: ${({ theme }) => theme.textSoft + "99"};
+  align-items: justify;
   gap: 20px;
   cursor: pointer;
   padding: 7.5px 26px;
@@ -98,56 +81,57 @@ const Item = styled.div`
 `;
 
 const Hr = styled.hr`
-  margin: 15px 15px 15px 0px;
+  margin: 10px 5px 10px 0px;
   border: 0.5px solid ${({ theme }) => theme.soft};
 `;
 
 const Title = styled.h2`
   font-size: 15px;
   font-weight: 500;
-  color: ${({ theme }) => theme.textSoft + "99"};
-  margin-bottom: 4px;
+  color: ${({ theme }) => theme.itemText };
+  margin-bottom: 12px;
   padding: 0px 26px;
   display: flex;
   align-items: center;
   gap: 12px;
 `;
 
-const TeamIcon = styled(WorkspacesRounded)`
-  color: ${({ tagColor }) => tagColor};
-  font-size: 18px;
-  margin-left: 2px;
-`;
 
-const Menu = ({ darkMode, setDarkMode, setMenuOpen, setNewTeam }) => {
-  const [teamsLoading, setTeamsLoading] = useState(true);
+
+const Menu = ({ darkMode, setDarkMode, setMenuOpen }) => {
   const token = localStorage.getItem("token");
+  const [project, setProject] = useState([]);
+  const [team, setTeams] = useState([]);
+  const [projectLoading, setProjectLoading] = useState(false);
+  const [teamsLoading, setTeamsLoading] = useState(false);
+  const [showProject, setShowProject] = useState(false);
+  const [showTeam, setShowTeam] = useState(false);
+  const { currentUser } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const logoutUser = () => {
     dispatch(logout());
     navigate(`/`);
   };
-
-  const [team, setTeams] = useState([]);
-  const { currentUser } = useSelector(state => state.user);
-
-  const getteams = async () => {
+  const fecthData = async () => {
     setTeamsLoading(true);
-   await getUsers(token)
+   await getUserByToken(token)
       .then((res) => {
-        setTeams(res.data.teams);
+        setProject(res.data.data.project);
+        setProjectLoading(false);
+        setTeams(res.data.data.team);
         setTeamsLoading(false);
       })
       .catch((err) => {
+        console.log("err", err);
         dispatch(openSnackbar({ message: err.message, type: "error" }));
         if (err.response.status === 401 || err.response.status === 402) logoutUser();
       });
   };
 
-
   useEffect(() => {
-    getteams();
+    fecthData();
   }, [currentUser]);
 
   return (
@@ -155,8 +139,7 @@ const Menu = ({ darkMode, setDarkMode, setMenuOpen, setNewTeam }) => {
       <Flex>
         <Link to="/" style={{ textDecoration: "none", color: "inherit", alignItems: 'center',display: 'flex' }}>
           <Logo>
-            <Image src={LogoIcon} />
-            VEXA
+            TASKIT
           </Logo>
         </Link>
         <Close>
@@ -165,75 +148,82 @@ const Menu = ({ darkMode, setDarkMode, setMenuOpen, setNewTeam }) => {
       </Flex>
       <ContainerWrapper>
         <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
-          <Item>
+          <Title>
             <DashboardRounded />
             Dashboard
-          </Item>
+          </Title>
         </Link>
         <Link
-          to="projects"
+          to="project"
           style={{ textDecoration: "none", color: "inherit" }}
+          onClick={() => setShowProject(!showProject)}
         >
-          <Item>
+          <Title>
             <AccountTreeRounded />
             Projects
-          </Item>
+          </Title>
         </Link>
-        <Link
-          to="works"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Item>
-            <AddTaskRounded />
-            Your Works
-          </Item>
-        </Link>
-        <Link
-          to="community"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Item>
-            <Public />
-            Community
-          </Item>
-        </Link>
-        <Hr />
-        <Title>
-          <Groups2Rounded /> Teams
-        </Title>
-        {teamsLoading ? (
-          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px'}}>
+          {projectLoading ? (
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px'}}>
             <CircularProgress size='24px' />
           </div>
-        ) : (<>
-          {team.map((team, i) => (
-            <Link
-              to={`/teams/${team._id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
+          ) : ( showProject &&
+            project.map((p, i) => (
+              <Link to={`/project/${p._id}`}
+              style={{ textDecoration: "none", color: "inherit" }}>
               <Item>
-                {team.img !== "" ?
-                  <Avatar sx={{ width: "28px", height: "28px" }} src={team.img}>{team.name[0]}</Avatar> :
-                  <TeamIcon sx={{ fontSize: "18px" }} tagColor={tagColors[i]} />}
-                {team.name}
+                <AccountTreeRounded sx={{ fontSize: "18px" }} tagColor={tagColors[i]} />
+                {p.project_name}
               </Item>
             </Link>
-          ))}
-        </>
-        )}
-        <Item onClick={() => setNewTeam(true)}>
-          <Add sx={{ fontSize: "20px" }} />
-          New Team
-        </Item>
+           )))}
         <Hr />
-        <Item onClick={() => setDarkMode(!darkMode)}>
+        <Link
+          to="team"
+          style={{ textDecoration: "none", color: "inherit" }}
+          onClick={() => setShowTeam(!showTeam)}
+        >
+          <Title>
+            <Groups2Rounded />
+            Teams
+          </Title>
+        </Link>
+        { teamsLoading ? (
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px'}}>
+            <CircularProgress size='24px' />
+          </div>
+          ) : ( showTeam &&
+            team.map((t, i) => (
+              <Link to={`/team/${t._id}`}
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <Item>
+                <Groups2Rounded sx={{ fontSize: "18px" }} tagColor={tagColors[i]} />
+                {t.team_name}
+              </Item>
+            </Link>
+           )))}
+        <Hr />
+        <Link
+          to="task"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <Title>
+            <AddTaskRounded />
+            My Tasks
+          </Title>
+        </Link>
+        <div style={{bottom: '20px', position: 'absolute'}}>
+        
+          <Title onClick={() => setDarkMode(!darkMode)}>
           <SettingsBrightnessOutlinedIcon />
           {darkMode ? "Light" : "Dark"} Mode
-        </Item>
-        <Item onClick={() => logoutUser()}>
+        </Title>
+        <Title onClick={() => logoutUser()}>
           <Logout />
           Logout
-        </Item>
+        </Title>
+        </div>
+        
         <Space />
       </ContainerWrapper>
     </Container >

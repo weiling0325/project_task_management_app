@@ -2,15 +2,10 @@ import React from 'react'
 import styled from 'styled-components'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import Footer from './components/Footer'
 import Features from './components/Features'
-import Testimonials from './components/Testimonials'
-import Team from './components/Team'
-import Benefits from './components/Benifits'
-import About from './components/About'
+import Benefits from './components/Benefits'
 import SignUp from '../../components/SignUp'
 import SignIn from '../../components/SignIn'
-import Faq from './components/Faq'
 
 const Body = styled.div`
     background: #13111C;
@@ -62,13 +57,7 @@ const Home = () => {
                 </Top>
                 <Content>
                     <Features />
-                    {/* <Testimonials/> */}
                     <Benefits />
-                    {/* <Faq/> */}
-                    <Team />
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Footer />
-                    </div>
                 </Content>
                 {SignUpOpen && (
                     <SignUp setSignUpOpen={setSignUpOpen} setSignInOpen={setSignInOpen} />

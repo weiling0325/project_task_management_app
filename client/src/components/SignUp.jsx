@@ -10,7 +10,6 @@ import {
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useTheme } from "styled-components";
-import Google from "../Images/google.svg";
 import { IconButton, Modal } from "@mui/material";
 import { loginFailure, loginStart, loginSuccess } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";
@@ -21,6 +20,7 @@ import validator from "validator";
 import { googleSignIn, signUp } from "../api/index";
 import OTP from "./OTP";
 import { useGoogleLogin } from "@react-oauth/google";
+import GoogleIcon from "../Images/google.png";
 
 const Container = styled.div`
   width: 100%;
@@ -83,7 +83,7 @@ const OutlinedBox = styled.div`
   font-weight: 500;
   padding: 0px 14px;
 `;
-const GoogleIcon = styled.img`
+const Img = styled.img`
   width: 22px;
 `;
 const Divider = styled.div`
@@ -301,7 +301,6 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
       googleSignIn({
         name: user.data.name,
         email: user.data.email,
-        img: user.data.picture,
       }).then((res) => {
         console.log(res);
         if (res.status === 200) {
@@ -367,8 +366,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
                   <CircularProgress color="inherit" size={20} />
                 ) : (
                   <>
-                    <GoogleIcon src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1000px-Google_%22G%22_Logo.svg.png?20210618182606" />
-                    Sign In with Google</>
+                    <Img src={GoogleIcon} />Sign In with Google</>
                 )}
               </OutlinedBox>
               <Divider>

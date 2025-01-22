@@ -13,7 +13,7 @@ const snackbar = createSlice({
         openSnackbar: (state, action) => {
             state.open = true;
             state.message = action.payload.message;
-            state.severity = action.payload.severity;
+            state.severity = action.payload.type;
         },
         closeSnackbar: (state) => {
             state.open = false;

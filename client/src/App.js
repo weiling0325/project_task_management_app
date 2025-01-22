@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import { ThemeProvider } from "styled-components";
 import { useState } from "react";
 import { darkTheme, lightTheme } from "./utils/Theme";
@@ -11,24 +10,24 @@ import Menu from './components/Menu';
 import Navbar from './components/Navbar';
 import styled from 'styled-components';
 import Dashboard from './pages/Dashboard';
-import Works from './pages/Works';
+import Task from './pages/Task';
 import Projects from './pages/Projects';
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import ProjectDetails from './pages/ProjectDetails';
 import Teams from './pages/Teams';
+import TeamDetails from './pages/TeamDetails';
 import ToastMessage from './components/ToastMessage';
-import Community from './pages/Community';
 import { useSelector } from "react-redux";
 import AddNewTeam from './components/AddNewTeam';
 import { useEffect } from 'react';
-import { getUsers } from './api';
 import { useDispatch } from 'react-redux';
 import Home from './pages/Home/Home';
-import Chats from './pages/Chats';
-import ProjectInvite from './components/ProjectInvite';
 import TeamInvite from './components/TeamInvite';
+import InviteMembers from "./components/InviteMembers";
 import AddNewProject from './components/AddNewProject';
+import TaskCard from "./components/TaskCard";
+import TaskDetails from "./components/TaskDetails";
 
 const Container = styled.div`
 height: 100vh;
@@ -51,14 +50,12 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(true);
   const [newTeam, setNewTeam] = useState(false);
   const [newProject, setNewProject] = useState(false);
-  const { open, message, severity } = useSelector((state) => state.snackbar);
+  const {open, message, severity} = useSelector((state) => state.snackbar);
   const [loading, setLoading] = useState(false);
 
-
   const { currentUser } = useSelector(state => state.user);
-
-
-  //set the menuOpen state to false if the screen size is less than 768px
+  console.log("currentUser: ",currentUser);
+  
   useEffect(() => {
     const resize = () => {
       if (window.innerWidth < 1110) {
@@ -88,24 +85,22 @@ function App() {
                     {newProject && <AddNewProject setNewProject={setNewProject} />}
                     <Routes>
                       <Route >
-                        <Route exact path="/" element={<Dashboard setNewTeam={setNewTeam} setNewProject={setNewProject}/>} />
-                        <Route path="projects" element={<Projects newProject={newProject} setNewProject={setNewProject}/>} />
-                        <Route path="teams">
-                          <Route path=":id" element={<Teams />} />
+                        <Route exact path="/" element={<Dashboard newProject={newProject} setNewProject={setNewProject}/>} />
+                        <Route path="project" element={<Projects newProject={newProject} setNewProject={setNewProject}/>} />
+                        <Route path="project">
+                          <Route path=":project_id" element={<ProjectDetails />} />
+                        </Route>
+                        <Route path="team" element={<Teams />} />
+                        <Route path="team">
+                          <Route path=":team_id" element={<TeamDetails />} />
                         </Route>
                         <Route path="team/invite">
                           <Route path=":code" element={<TeamInvite />} />
                         </Route>
-                        <Route path="projects">
-                          <Route path=":id" element={<ProjectDetails />} />
+                        <Route path="task" element={<Task />} />
+                        <Route path="task">
+                          <Route path=":task_id" element={<TaskDetails />} />
                         </Route>
-                        <Route path="projects/invite">
-                          <Route path=":code" element={<ProjectInvite />} />
-                        </Route>
-
-                        <Route path="works" element={<Works />} />
-                        <Route path="community" element={<Community />} />
-                        <Route path="chats" element={<Chats />} />
                         <Route path="*" element={<div>Not Found</div>} />
                       </Route>
                     </Routes>
@@ -123,8 +118,8 @@ function App() {
                   <Route path="team/invite">
                     <Route path=":code" element={<TeamInvite />} />
                   </Route>
-                  <Route path="projects/invite">
-                    <Route path=":code" element={<ProjectInvite />} />
+                  <Route path="member/invite">
+                    <Route path=":code" element={<InviteMembers />} />
                   </Route>
                 </Route>
               </Routes>

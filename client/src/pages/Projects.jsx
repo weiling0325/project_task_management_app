@@ -2,15 +2,12 @@ import axios from "axios";
 import React from "react";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-import Item from "../components/Card";
-import { statuses, data, tagColors } from "../data/data";
+import ProjectCard from "../components/ProjectCard";
+import { statuses, tagColors } from "../data/data";
 import { useDispatch } from "react-redux";
 import { openSnackbar } from "../redux/snackbarSlice";
 import { useSelector } from "react-redux";
-import Skeleton from "@mui/material/Skeleton";
-import { useCookies } from "react-cookie";
-import { getProjects } from "../api/index";
-import AddNewProject from "../components/AddNewProject";
+import { getUserProject } from "../api/index";
 import { CircularProgress } from "@mui/material";
 
 const Container = styled.div`
@@ -54,7 +51,7 @@ const OutlinedBox = styled.div`
   min-height: 44px;
   border-radius: 8px;
   border: 1px solid ${({ theme }) => theme.soft2};
-  color: ${({ theme }) => theme.soft2};
+  color: ${({ theme }) => theme.text};
   ${({ googleButton, theme }) =>
     googleButton &&
     `
@@ -67,7 +64,7 @@ const OutlinedBox = styled.div`
   border: none;
     font-weight: 600;
     font-size: 16px;
-    background: ${theme.card}; `}
+    background: linear-gradient(76.35deg, #306EE8 15.89%, #306EE8 89.75%); `}
     ${({ activeButton, theme }) =>
     activeButton &&
     `
@@ -84,7 +81,7 @@ const OutlinedBox = styled.div`
   padding: 0px 14px;
   &:hover {
     transition: all 0.6s ease-in-out;
-    background: ${({ theme }) => theme.soft};
+    background: linear-gradient(76.35deg, #306EE8 15.89%, #306EE8 89.75%);
     color: white;
   }
 `;
@@ -95,14 +92,13 @@ const Projects = ({newProject,setNewProject}) => {
   const [loading, setLoading] = useState(true);
   const { currentUser } = useSelector((state) => state.user);
 
-
   const token = localStorage.getItem("token");
-  console.log(token)
   const getprojects = async () => {
-    await getProjects(token)
+    await getUserProject(token)
       .then((res) => {
-        setData(res.data);
+        setData(res.data.projects);
         setLoading(false);
+        console.log("Projects ",res.data.projects);
       })
       .catch((err) => {
         setLoading(false);
@@ -118,10 +114,11 @@ const Projects = ({newProject,setNewProject}) => {
   useEffect(() => {
     getprojects();
     window.scrollTo(0, 0);
-  }, [newProject, currentUser]);
+  }, [newProject]);
 
 
   return (
+    
     <Container>
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px', height: '300px' }}>
@@ -134,19 +131,19 @@ const Projects = ({newProject,setNewProject}) => {
               <ItemWrapper key={index}>
                 {s.icon} {s.status}
                 <Span>
-                  ({data.filter((item) => item.status == s.status).length})
+                  ({data.filter((item) => item.project_status == s.status).length})
                 </Span>
                 <Wrapper key={index}>
                   {s.status === "Working" && (
                     <OutlinedBox button={true} activeButton={false} onClick={() => setNewProject(true)}>
-                      New Project
+                      Create New Project
                     </OutlinedBox>
                   )}
                   {data
-                    .filter((item) => item.status == s.status)
+                    .filter((item) => item.project_status == s.status)
                     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
                     .map((item, idx) => (
-                      <Item
+                      <ProjectCard
                         key={item._id}
                         item={item}
                         index={idx}

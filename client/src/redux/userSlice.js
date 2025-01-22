@@ -1,6 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { useNavigate } from 'react-router-dom'
-
 const initialState = {
   currentUser: null,
   loading: false,
@@ -15,8 +13,9 @@ export const userSlice = createSlice({
       state.loading = true;
     },
     loginSuccess: (state, action) => {
+      console.log("userSlice action.payload", action.payload);
       state.loading = false;
-      state.currentUser = action.payload.user;
+      state.currentUser = action.payload.account;
       localStorage.setItem('token', action.payload.token);
     },
     loginFailure: (state) => {

@@ -3,20 +3,18 @@ import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSelector } from "react-redux";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import SignUp from "./SignUp";
-import SignIn from "./SignIn";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton } from "@mui/material";
-import { Forum, NotificationsRounded } from "@mui/icons-material";
+import { NotificationsRounded } from "@mui/icons-material";
 import Badge from "@mui/material/Badge";
 import { useDispatch } from "react-redux";
 import Avatar from "@mui/material/Avatar";
 import AccountDialog from "./AccountDialog";
 import NotificationDialog from "./NotificationDialog";
-import { getUsers, notifications } from "../api/index";
-import { openSnackbar } from "../redux/snackbarSlice";
+import { getUserByToken, getUserNotification } from "../api/index";
 import { logout } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
+import { tagColors } from "../data/data";
 
 const Container = styled.div`
   position: sticky;
@@ -110,9 +108,11 @@ const User = styled.div`
 
 
 const Navbar = ({ menuOpen, setMenuOpen }) => {
+  const randomTagColor = tagColors[Math.floor(Math.random() * tagColors.length)];
   const [SignUpOpen, setSignUpOpen] = useState(false);
   const [SignInOpen, setSignInOpen] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
+  const [notificationLength, setNotificationLength] = useState(0);
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
@@ -121,7 +121,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
 
   const [notification, setNotification] = useState([]);
   useEffect(() => {
-    getUsers(token).then((res) => {
+    getUserByToken(token).then((res) => {
       setUsers(res.data);
     }).catch((err) => {
       if (err.response.status === 401) {
@@ -133,12 +133,13 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
 
   const getNotifications = async () => {
     try {
-      notifications(token).then((res) => {
-        setNotification(res.data);
-        console.log(notification);
+      await getUserNotification(token).then((res) => {
+        const data = res.data.data;
+        setNotification(data);
+        setNotificationLength(data.length);
       });
     } catch (error) {
-      console.log(error);
+      console.log("Error loading user notification: ",error);
     }
   };
 
@@ -154,7 +155,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
       setSignInOpen(false);
       setSignUpOpen(true);
     }
-    console.log(currentUser);
+    
     if (currentUser && !currentUser.verified) {
       setVerifyEmail(true);
     } else {
@@ -162,6 +163,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
     }
   }, [currentUser, SignInOpen, SignUpOpen, setVerifyEmail, users]);
 
+  
   //Open the account dialog
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -186,6 +188,11 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
     setAnchorEl2(null);
   };
 
+  // useEffect(() => {
+  //   setNotificationLength(0);
+  // }, [notificationClick])
+
+
   return (
     <>
       <Container>
@@ -200,13 +207,8 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
           <User>
             {currentUser ? (
               <>
-                <IcoButton aria-describedby={id} onClick={() => navigate('/chats')}>
-                  <Badge color="primary">
-                    <Forum />
-                  </Badge>
-                </IcoButton>
                 <IcoButton aria-describedby={id} onClick={notificationClick}>
-                  <Badge badgeContent={notification.length} color="primary">
+                  <Badge badgeContent={notificationLength} color="primary">
                     <NotificationsRounded />
                   </Badge>
                 </IcoButton>
@@ -223,10 +225,9 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
                   >
                     <Avatar
                       src={currentUser.img}
-                      alt={currentUser.name}
-                      sx={{ width: 34, height: 34 }}
+                      sx={{ width: "34px", height: "34px" }}
                     >
-                      {currentUser.name.charAt(0)}
+                      {currentUser.email[0].toUpperCase()}
                     </Avatar>
                   </Badge>
                 </IcoButton>

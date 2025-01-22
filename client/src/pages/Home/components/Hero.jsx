@@ -1,7 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import DemoImage from "../../../Images/AddProject.gif"
-import HeaderImage from "../../../Images/Header.png"
+import HeaderImage from "../../../Images/header-image.png"
 
 const Container = styled.div`
   height: 80vh;
@@ -49,7 +48,7 @@ const Button = styled.button`
   padding: 16px 20px;
   font-size: 20px;
   font-weight: 600;
-  background: linear-gradient(76.35deg, #801AE6 15.89%, #A21AE6 89.75%);
+  background: linear-gradient(76.35deg, #306EE8 15.89%, #306EE8 89.75%);
   color: ${({ theme }) => theme.text};
   border: none;
   border-radius: 10px;

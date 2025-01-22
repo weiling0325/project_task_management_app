@@ -1,13 +1,14 @@
 import { CloseRounded, SearchOutlined, SendRounded } from "@mui/icons-material";
 import { Modal } from "@mui/material";
-import React, { useState } from "react";
+import Checkbox from '@mui/material/Checkbox';
+import React from "react";
 import styled from "styled-components";
 import { Avatar } from "@mui/material";
-import { useSelector } from "react-redux";
-import { inviteTeamMembers, inviteProjectMembers, searchUsers } from "../api/index";
+import { inviteMember, searchAccountByEmail } from "../api/index";
 import { openSnackbar } from "../redux/snackbarSlice";
 import { useDispatch } from "react-redux";
 import CircularProgress from "@mui/material/CircularProgress";
+import { tagColors } from "../data/data";
 
 const Container = styled.div`
   width: 100%;
@@ -21,19 +22,17 @@ const Container = styled.div`
 `;
 
 const Wrapper = styled.div`
-  width: 430px;
+  width: 100%;
   height: min-content;
+  margin: 2%;
+  max-width: 600px;
   border-radius: 16px;
   background-color: ${({ theme }) => theme.bgLighter};
   color: ${({ theme }) => theme.text};
   padding: 10px;
   display: flex;
-  margin-top: 80px;
   flex-direction: column;
   position: relative;
-  @media (max-width: 768px) {
-    width: 100%;
-  }
 `;
 
 const Title = styled.div`
@@ -105,7 +104,6 @@ const EmailId = styled.div`
   font-size: 10px;
   font-weight: 400;
   max-width: 100px;
-  word-wrap: break-word;
   color: ${({ theme }) => theme.textSoft + "99"};
 `;
 
@@ -120,13 +118,23 @@ gap: 2px;
 }
 `;
 
-const Access = styled.div`
-padding: 6px 10px;
-border-radius: 12px;
-display: flex;
-align-items: center;
-justify-content: center;
-background-color: ${({ theme }) => theme.bgDark};
+const Role = styled.div`
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ theme }) => theme.bgDark};
+`;
+
+const AllowToAccessText = styled.div`
+  width: 50px;
+  border: none;
+  font-size: 11px;
+  background-color: transparent;
+  outline: none;
+  color: ${({ theme }) => theme.text};
+  background-color: ${({ theme }) => theme.bgDark};
 `;
 
 const Select = styled.select`
@@ -136,11 +144,6 @@ const Select = styled.select`
   outline: none;
   color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.bgDark};
-`;
-
-const Role = styled.div`
-  background-color: ${({ theme }) => theme.bgDark};
-  border-radius: 12px;
 `;
 
 const InviteButton = styled.button`
@@ -163,26 +166,28 @@ const InviteButton = styled.button`
   }
 `;
 
-const InviteMembers = ({ setInvitePopup, id, teamInvite }) => {
-  const [search, setSearch] = React.useState("");
+const InviteMembers = ({ setInvitePopup, id, projectId }) => {
   const [users, setUsers] = React.useState([]);
   const [message, setMessage] = React.useState("");
-  const { currentUser } = useSelector((state) => state.user);
-  const token = localStorage.getItem("token");
-
   const [role, setRole] = React.useState("Member");
-  const [access, setAccess] = React.useState("View Only");
-  const [Loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const token = localStorage.getItem("token");
+  const [search, setSearch] = React.useState("");
+  const dispatch = useDispatch();
 
   const handleSearch = async (e) => {
     setSearch(e.target.value);
-    searchUsers(e.target.value, token)
+    searchAccountByEmail({ search: e.target.value, token: token })
       .then((res) => {
         if (res.status === 200) {
-          setUsers(res.data);
+          console.log("searchAccountByEmail res.data:", res.data);
+          const updatedUsers = res.data.map((user) => ({
+            ...user,
+            allowToAccess: false, 
+          }));
+          setUsers(updatedUsers);
           setMessage("");
-        }
-        else {
+        } else {
           setUsers([]);
           setMessage(res.status);
         }
@@ -195,45 +200,61 @@ const InviteMembers = ({ setInvitePopup, id, teamInvite }) => {
 
   const handleInvite = async (user) => {
     setLoading(true);
-    const User = {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: role,
-      access: access,
-    };
-    console.log(User);
-    if (teamInvite) {
-      inviteTeamMembers(id, User, token)
-        .then((res) => {
-          console.log(res);
-          if (res.status === 200)
-            dispatch(openSnackbar({ message: `Invitation sent to ${user.name}`, type: "success" }));
-          setLoading(false);
-        })
-        .catch((err) => {
-          dispatch(openSnackbar({ message: err.message, type: "error" }));
-          setLoading(false);
-          console.log(err);
-        });
-    } else {
-      console.log("project");
-      inviteProjectMembers(id, User, token)
-        .then((res) => {
-          if (res.status === 200)
-            dispatch(openSnackbar({ message: `Invitation sent to ${user.name}`, type: "success" }));
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          dispatch(openSnackbar({ message: err.message, type: "error" }));
-          setLoading(false);
-        });
+    try {
+      const member = {
+        project_id: projectId,
+        user_id: user._id,
+        email: user.email,
+        token,
+        member_role: role,
+        allow_to_modify: user.allowToAccess,
+      };
+    
+      const response = await inviteMember({ id: id, member: member, token });
+      if (response.status === 200) {
+        setInvitePopup(false);
+        dispatch(
+          openSnackbar({
+            message: `Invitation sent to ${user.name}`,
+            type: "success",
+          })
+        );
+      } else if (response.status === 403) {
+        console.log("403 User is already a member of this project!");
+        setInvitePopup(false);
+        dispatch(
+          openSnackbar({
+            message: `User is already a member of this project!`,
+            type: "Error",
+          })
+        );
+      }  else {
+        throw new Error("Failed to send invitation.");
+      }
+    } catch (err) {
+      console.log("err when inviting members:", err);
+      dispatch(openSnackbar({ message: err.message || "User is already a member of this project!", type: "error" }));
+      setInvitePopup(false);
+    } finally {
+      setInvitePopup(false);
+      setLoading(false);
     }
   };
 
-  const dispatch = useDispatch();
-
+  const toggleAllowToAccess = (userId) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user._id === userId
+          ? { ...user, allowToAccess: !user.allowToAccess }
+          : user
+      )
+    );
+  };
+  const handleChange = (e) => {
+    setRole(e.target.value); 
+  };
+  
+    
   return (
     <Modal open={true} onClose={() => setInvitePopup(false)}>
       <Container>
@@ -261,11 +282,11 @@ const InviteMembers = ({ setInvitePopup, id, teamInvite }) => {
           </Search>
           {message && <div style={{ color: "red" }}>{message}</div>}
           <UsersList>
-            {users.map((user) => (
+            {users?.map((user) => (
               <MemberCard key={user._id}>
                 <UserData>
                   <Avatar sx={{ width: "34px", height: "34px" }} src={user.img}>
-                    {user.name[0]}
+                    {user.email[0].toUpperCase()}
                   </Avatar>
                   <Details>
                     <Name>{user.name}</Name>
@@ -273,32 +294,37 @@ const InviteMembers = ({ setInvitePopup, id, teamInvite }) => {
                   </Details>
                 </UserData>
                 <Flex>
-                  <Access>
-                    <Select name="Role" onChange={(e) => setAccess(e.target.value)}>
-                      <option value="" selected disabled hidden>Access</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Member">Member</option>
-                      <option value="Editor">Editor</option>
-                      <option value="View Only">View Only</option>
-                    </Select>
-                  </Access>
                   <Role>
-                    <Input style={{ width: '70px', fontSize: '12px', padding: '8px 10px' }} type="text" placeholder="Role" onChange={(e) => setRole(e.target.value)} />
+                    <Select
+                      name="Member Role"
+                      value={role}
+                      onChange={handleChange}
+                    >
+                      <option value="Team Lead">Team Lead</option>
+                      <option value="Member">Member</option>
+                    </Select>
                   </Role>
-
+                  <label style={{ display: "flex", alignItems: "center", gap: "0px" }}>
+                    <Checkbox
+                      checked={user.allowToAccess}
+                      onChange={() => toggleAllowToAccess(user._id)}
+                    />
+                    <AllowToAccessText>Allow to Modify</AllowToAccessText>
+                  </label>
                 </Flex>
                 <InviteButton onClick={() => handleInvite(user)}>
-                  {Loading ? (
+                  {loading ? (
                     <CircularProgress color="inherit" size={20} />
-                  ) : (<>
-                    <SendRounded sx={{ fontSize: "13px" }} />
-                    Invite</>
+                  ) : (
+                    <>
+                      <SendRounded sx={{ fontSize: "13px" }} />
+                      Invite
+                    </>
                   )}
                 </InviteButton>
               </MemberCard>
             ))}
           </UsersList>
-
         </Wrapper>
       </Container>
     </Modal>
@@ -306,3 +332,4 @@ const InviteMembers = ({ setInvitePopup, id, teamInvite }) => {
 };
 
 export default InviteMembers;
+

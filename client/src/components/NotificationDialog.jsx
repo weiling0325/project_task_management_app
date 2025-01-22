@@ -1,8 +1,6 @@
 import { Avatar, Popover } from "@mui/material";
 import React from "react";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
-import { logout } from "../redux/userSlice";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -57,14 +55,15 @@ const Hr = styled.hr`
   margin-top: 4px;
 `;
 
-const NotificationDialog = ({
-  open,
-  id,
-  anchorEl,
-  handleClose,
-  currentUser,
-  notification,
-}) => {
+const Body = styled.div`
+  font-size: 12px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.textSoft + "99"};
+`;
+
+
+const NotificationDialog = ({open, id, anchorEl, handleClose, currentUser, notification}) => {
+  
   return (
     <Popover
       anchorReference="anchorPosition"
@@ -79,23 +78,23 @@ const NotificationDialog = ({
     >
       <Wrapper>
         <Heading>Notifications</Heading>
-
-        {notification.map((item) => (
-          <Item>
-            <Avatar
-              sx={{ width: "32px", height: "32px" }}
-              src={currentUser.img}
-            >
-              {currentUser.name.charAt(0)}
-            </Avatar>
-            <Details>
-              <Title>{item.type} invitation</Title>
-              <Desc>{item.message}</Desc>
-              <Hr />
-            </Details>
-          </Item>
-        ))}
-
+        
+        {Array.isArray(notification) && notification.length > 0 ? (
+          notification.map((item, index) => (
+            <Item key={index}>
+              <Avatar sx={{ width: "32px", height: "32px" }}>
+                {currentUser.name?.charAt(0).toUpperCase()}
+              </Avatar>
+              <Details>
+                <Title>{item.type} invitation</Title>
+                <Desc>{item.message}</Desc>
+                <Hr />
+              </Details>
+            </Item>
+          ))
+        ) : (
+          <Body>No notifications available.</Body>
+        )}
       </Wrapper>
     </Popover>
   );

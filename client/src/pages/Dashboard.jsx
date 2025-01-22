@@ -1,22 +1,17 @@
 
 import React from "react";
 import { useState, useEffect } from "react";
-import ProjectCard from "../components/Card";
+import ProjectCard from "../components/ProjectCard";
 import Styled, { useTheme } from "styled-components";
-import ProjectStatCard from "../components/ProjectStatCard";
 import { Add } from "@mui/icons-material";
-import CircularProgress, {
-  CircularProgressProps,
-} from '@mui/material/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useSelector } from "react-redux";
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import { LinearProgress } from "@mui/material";
-import { statuses, data, tagColors } from "../data/data";
 import { useDispatch } from "react-redux";
 import { openSnackbar } from "../redux/snackbarSlice";
-import { getProjects, userTasks } from "../api";
+import { getUserProject, getUserTask } from "../api/index";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry"
+import AddNewProject from "../components/AddNewProject";
 
 const Container = Styled.div`
 @media screen and (max-width: 480px) {
@@ -63,7 +58,7 @@ const CreateButton = Styled.div`
   font-weight: 800;
   color: ${({ theme }) => theme.text};
   border-radius: 12px;
-  background: linear-gradient(76.35deg, #801AE6 15.89%, #A21AE6 89.75%);
+  background: linear-gradient(76.35deg, #306EE8 15.89%, #306EE8 89.75%);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -71,7 +66,7 @@ const CreateButton = Styled.div`
   cursor: pointer;
   transition: all 0.5s ease;
   &:hover {
-    background: linear-gradient(76.35deg, #801AE6 15.89%, #A21AE6 89.75%);
+    background: linear-gradient(76.35deg, #306EE8 15.89%, #306EE8 89.75%);
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25);
   }
   gap: 14px;
@@ -143,18 +138,6 @@ const SectionTitle = Styled.div`
   color: ${({ theme }) => theme.text};
 `;
 
-const RecentProjectsWrapper = Styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  gap: 20px;
-`;
-
-
-const Teams = Styled.div`
-  width: 100%;
-`;
-
 const TotalProjects = Styled.div` 
   width: 100%;
   padding: 8px 12px;
@@ -190,11 +173,6 @@ const Desc = Styled.div`
   color: ${({ theme }) => theme.soft2};
 `;
 
-const TotalWorks = Styled.div`
-  width: 100%;
-  padding: 8px 12px;
-`;
-
 const Title = Styled.div`
   width: 100%;
   height: 100%;
@@ -211,66 +189,7 @@ const Span = Styled.span`
   color: ${({ theme }) => theme.primary};
 `;
 
-const CardWrapper = Styled.div`
-padding: 12px 0px;
-display: grid;
-grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-grid-gap: 8px;
-`;
-
-const Tasks = Styled.div`
-  width: 100%;
-  padding: 4px;
-  text-align: left;
-  margin: 2px;
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.card};
-`;
-
-const TaskCardWrapper = Styled.div`
-  padding: 12px 0px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  grid-gap: 8px;
-`;
-
-function CircularProgressWithLabel(props
-) {
-  const theme = useTheme();
-  return (
-    <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-      <CircularProgress variant="determinate" {...props} thickness={6} size="60px" style={{ color: theme.primary }} />
-      <Box
-        sx={{
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-          position: 'absolute',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Typography
-          variant="caption"
-          component="div"
-          color="inherit"
-        >{`${Math.round(props.value)}`}</Typography>
-      </Box>
-    </Box>
-  );
-}
-
-// backgroundColor: 'lightyellow',
-// '& .MuiLinearProgress-bar': {
-//   backgroundColor: 'orange'
-// }
-
-const Dashboard = ({ setNewProject, setNewTeam, newProject }) => {
+const Dashboard = ({ setNewProject, newProject }) => {
 
   const dispatch = useDispatch();
   const [projects, setProjects] = useState([]);
@@ -282,60 +201,57 @@ const Dashboard = ({ setNewProject, setNewTeam, newProject }) => {
   const [loading, setLoading] = useState(true);
   const { currentUser } = useSelector((state) => state.user);
 
-
   const token = localStorage.getItem("token");
-  const getprojects = async () => {
-    setLoading(true);
-    await getProjects(token)
-      .then((res) => {
-        setProjects(res.data);
-        getTotalProjectsDone();
-      })
-      .catch((err) => {
-        setLoading(false);
-        dispatch(
-          openSnackbar({
-            message: err.response.data.message,
-            severity: "error",
-          })
-        );
-      });
+
+  const getTotalProjectsDone = (fetchedProjects) => {
+    setTotalProjectsDone(
+      fetchedProjects.filter((project) => project.project_status.toString() === "Completed").length
+    );
+    setTotalProjects(fetchedProjects.length);
+  };
+  
+  const getTotalTasks = (fetchedTasks) => {
+    const completedTasks = fetchedTasks.filter(
+      (task) => task.task_status.toString().toLowerCase() === "completed"
+    ).length;
+    setTotalTasks(fetchedTasks.length);
+    setTotalTasksDone(completedTasks);
   };
 
-  const getTotalProjectsDone = () => {
-    setTotalProjectsDone(projects.filter((project) => project.status.toString().toLowerCase() === "completed").length);
-    setTotalProjects(projects.length);
-  };
+  const fetchAllData = async() => {
+    try {
+      const [projectRes, taskRes] = await Promise.all([
+        getUserProject(token),
+        await getUserTask(token)
+      ]);
+      const fetchedProjects = projectRes.data.projects;
+      setProjects(fetchedProjects);
+      getTotalProjectsDone(fetchedProjects); 
 
-  const getTasks = async () => {
-    setLoading(true);
-    await userTasks(token)
-      .then((res) => {
-        setTasks(res.data);
-        getTotalTasks();
-        setLoading(false);
-      })
-      .catch((err) => {
-        dispatch(
-          openSnackbar({
-            message: err.response.data.message,
-            severity: "error",
-          })
-        );
-        setLoading(false);
-      });
-  };
-
-  const getTotalTasks = async () => {
-    setTotalTasks(tasks.length);
-    setTotalTasksDone(tasks.filter((task) => task.status.toString().toLowerCase() === "completed").length);
+      const fetchedTasks = taskRes.data.data; 
+      setTasks(fetchedTasks); 
+      getTotalTasks(fetchedTasks);
+    }catch (err) {
+      console.error("Error fetching data:", err);
+      dispatch(
+        openSnackbar({
+          message: err.response?.data?.message || "Failed to load data.",
+          severity: "error",
+        })
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    getprojects();
-    getTasks();
+    fetchAllData();
     window.scrollTo(0, 0);
   }, [newProject]);
+
+  useEffect(()=> {
+    fetchAllData();
+  },[])
 
 
   return (
@@ -387,15 +303,9 @@ const Dashboard = ({ setNewProject, setNewTeam, newProject }) => {
                     />
                     <ProgressText>{totalTasksDone}</ProgressText>
                   </Progress>
-                  <Desc><Span>{totalTasks - totalTasksDone}</Span> &nbsp;Tasks are left</Desc>
+                  <Desc><Span>{totalTasks ? totalTasks - totalTasksDone : 0}</Span> &nbsp;Tasks are left</Desc>
                 </TaskCompleted>
-              </StatCard>
-
-              {/* <StatCard>
-    <TotalWorks>
-      <Title>Total Works Done</Title>
-    </TotalWorks>
-  </StatCard> */}
+              </StatCard>            
             </StatsWrapper>
 
             <RecentProjects>
@@ -411,8 +321,6 @@ const Dashboard = ({ setNewProject, setNewTeam, newProject }) => {
                           key={project._id}
                           item={project}
                           index={id}
-                          status={project.status}
-                          tagColor={tagColors[3]}
                         />
                       ))
                   }
@@ -424,20 +332,19 @@ const Dashboard = ({ setNewProject, setNewTeam, newProject }) => {
           <Right>
 
             <TopBar>
-              <CreateButton onClick={() => setNewProject(true)}>
+              <CreateButton onClick={() => { setNewProject(true); }}>
                 <Icon>
                   <Add style={{ color: 'inherit' }} />
                 </Icon>
                 Create New Project
               </CreateButton>
-              <CreateButton btn="team" onClick={() => setNewTeam(true)}>
-                <Icon>
-                  <Add style={{ color: '#FFC107' }} />
-                </Icon>
-                Create New Team
-              </CreateButton>
             </TopBar>
           </Right>
+          {newProject && (
+            <AddNewProject
+              setNewProject={setNewProject}
+            />
+          )}
         </Section>
       )}
     </Container >

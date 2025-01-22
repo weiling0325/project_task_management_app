@@ -7,7 +7,6 @@ import { deleteProject, deleteTeam } from '../api';
 import { useDispatch } from 'react-redux';
 import { openSnackbar } from '../redux/snackbarSlice';
 
-
 const Container = styled.div`
   width: 100%;
   height: 100%;
@@ -86,7 +85,6 @@ const Button = styled.button`
 
 
 const DeletePopup = ({ openDelete, setOpenDelete }) => {
-
   const [name, setName] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [disabled, setDisabled] = React.useState(true);
@@ -108,14 +106,11 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
       DeleteProject();
     } else if (openDelete.type === "Team") {
       DeleteTeam();
-    } else if (openDelete.type === "Work") {
-      deleteWork();
     }
-
   }
 
   const DeleteProject = async () => {
-    await deleteProject(openDelete.id, openDelete.token)
+    await deleteProject({project_id: openDelete.project_id,  token:openDelete.token})
       .then((res) => {
         console.log(res);
         dispatch(openSnackbar
@@ -124,7 +119,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
             type: "success",
           }));
 
-        handleDeleteSuccess("/projects");
+        handleDeleteSuccess("/project");
       })
       .catch((err) => {
         dispatch(openSnackbar
@@ -136,7 +131,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteTeam = async () => {
-    await deleteTeam(openDelete.id, openDelete.token)
+    await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token})
     .then((res) => {
       console.log(res);
       dispatch(openSnackbar
@@ -157,16 +152,11 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
     )
   }
 
-  const deleteWork = () => {
-  }
-
-
   const handleDeleteSuccess = (link) => {
     setLoading(false);
     setOpenDelete({ ...openDelete, state: false });
-    navigate(`${link}`);
+    navigate(`/project`);
   }
-
 
 
   return (
@@ -184,7 +174,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
             onClick={() => setOpenDelete({ ...openDelete, state: false })}
           />
           <Heading>Delete {openDelete.type}</Heading>
-          <Text>Are you sure you want to delete this {openDelete.type} <b>{openDelete.name}</b>.<br /> This will permanently delete <b>{openDelete.name}</b> {openDelete.type}'s comments, tools, tasks, workflow runs, and remove all collaborator associations.</Text>
+          <Text>Are you sure you want to delete this {openDelete.type} <b>{openDelete.name}</b>.<br /> This will permanently delete <b>{openDelete.name}</b> {openDelete.type}'s comments, tasks and remove all collaborator associations.</Text>
           <Input type="text" placeholder={`Enter the name of the ${openDelete.type} to confirm`} value={name} onChange={(e) => setName(e.target.value)} />
           <Button disabled={disabled} onClick={() => handleDelete()}>
             {loading ? <CircularProgress size="14px" color="inherit" />
@@ -196,4 +186,4 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   )
 }
 
-export default DeletePopup
+export default DeletePopup;
