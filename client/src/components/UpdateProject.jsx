@@ -211,12 +211,12 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
     //       });
     //   };
       
-    const UpdateProject = () => {
+    const UpdateProject = async() => {
       try {
         setLoading(true);
         setDisabled(true);
         const project = { ...inputs };
-        const res = updateProject({ project_id: inputs.id, updateData: project, token })
+        const res = await updateProject({ project_id: inputs.id, updateData: project, token })
         if(res.status === 200) {
           setLoading(false);
             setOpenUpdate({ ...openUpdate, state: false });
@@ -236,9 +236,23 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
             );
         }
       } catch (err) {
+        if (err.response?.status === 403) {
+          dispatch(
+            openSnackbar({
+              message: "You are not allowed to update this project!",
+              type: "error",
+            })
+          );
+        } else {
+          dispatch(
+            openSnackbar({
+              message: err.response?.data?.message || "Failed to update project",
+              type: "error",
+            })
+          );
+        }
         console.log("err when inviting members:", err);
         console.log("err.response", err.response?.data?.message);
-        dispatch(openSnackbar({ message: err.response?.data?.message || "Failed to update project", type: "error" }));
         setDisabled(false);
       } finally {
         setLoading(false);
