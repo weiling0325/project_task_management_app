@@ -4,7 +4,6 @@ import styled from "styled-components";
 import SettingsBrightnessOutlinedIcon from "@mui/icons-material/SettingsBrightnessOutlined";
 import { Link } from "react-router-dom";
 import { CloseRounded, Groups2Rounded, Logout, WorkspacesRounded, AccountTreeRounded, DashboardRounded, AddTaskRounded } from "@mui/icons-material";
-import GroupsIcon from '@mui/icons-material/Groups';
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/userSlice";
 import { openSnackbar } from "../redux/snackbarSlice";

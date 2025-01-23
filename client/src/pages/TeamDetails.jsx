@@ -282,12 +282,6 @@ const TeamDetails = () => {
   }, []);
 
   useEffect(() => {
-    // project_id = team.project._id;
-    // setLoading(false);
-    // console.log("useEffect team project_id:", project_id);
-  }, [team]);
-
-  useEffect(() => {
     fetchAllData();
   }, [team_id, openUpdate, openDelete]);
 

@@ -261,17 +261,27 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
           setCreated(true);
           setAddNewTask(false);
         }
-      } catch (error) {
-        console.error("Error assigning task:", error);
-        dispatch(
-          openSnackbar({
-            message: error.message || "An error occurred.",
-            severity: "error",
-          })
-        );
+      } catch (err) {
+        if(err.response?.status === 403){
+          dispatch(
+            openSnackbar({
+              message: "You cannot assign a task to yourself!",
+              severity: "error",
+            })
+          );
+        } else {
+          console.error("Error assigning task:", err);
+          dispatch(
+            openSnackbar({
+              message: err.message || "An error occurred.",
+              severity: "error",
+            })
+          );
+        }
       } finally {
         setLoading(false);
         setDisabled(false);
+        setAddNewTask(false);
       }
     }
   };

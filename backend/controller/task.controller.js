@@ -12,11 +12,7 @@ export const assignTask = async (req, res, next) => {
     session.startTransaction();
 
     try {
-        console.log("assignTask api");
-        console.log("assignTask req.files: ", req.files);
-
         const taskDetails = JSON.parse(req.body.task);
-        console.log("taskDetails: ", taskDetails);
 
         const files = req.files;
         const task_attachment = files.map((file) => ({
@@ -24,7 +20,6 @@ export const assignTask = async (req, res, next) => {
             url: `/uploads/tasks/${file.filename}`,
             filetype: file.mimetype,
         }));
-        console.log("task_attachment : ", task_attachment);
 
         const project = await Project.findById(taskDetails.project_id).populate({
             path: "assign_to",
@@ -44,8 +39,15 @@ export const assignTask = async (req, res, next) => {
 
         if (taskDetails.user_id.length > 0) {
             for (const user of taskDetails.user_id) {
+                if(user === req.user.id) {
+                    return next(createError(403, "You cannot assign a task to yourself!"));
+                }
                 const findUser = await User.findById(user);
                 if (!findUser) return next(createError(404, "User not found!"));
+
+                const taskCreator = await User.findById(req.user.id);
+                if (!taskCreator) return next(createError(404, "Task creator not found!"));
+
 
                 await Promise.all(
                     project.assign_to.map(async (team) => {
@@ -56,7 +58,7 @@ export const assignTask = async (req, res, next) => {
                         if (isModifier) isAuthorizedMember = true;
 
                         const matchingMember = team.member.find(
-                            (member) => member.user._id.toString() === user
+                            (member) => member.user._id.toString() === user || member.user._id.toString() === req.user.id
                         );
 
                         if (matchingMember || isModifier) {
@@ -66,7 +68,6 @@ export const assignTask = async (req, res, next) => {
                 );
             }
         }
-
 
         const isOwner = project.created_by.toString() === req.user.id;
         if (!isOwner && !isAuthorizedMember) {
@@ -196,8 +197,7 @@ export const getProjectTask = async (req, res, next) => {
                 select: "name",
             })
             .sort({ createdAt: -1 });
-        // if (!findTask.length) return next(createError(404, "No task for this project is found!"));
-
+        
         console.log("findTask: ", findTask);
         res.status(200).json({ message: "Here are the assigned tasks of this project!", data: findTask });
     } catch (err) {
@@ -228,8 +228,7 @@ export const getTeamMemberTask = async (req, res, next) => {
             })
             .sort({ createdAt: -1 });
 
-        // if (!findTask.length) return next(createError(404, "No task assigned to this team!"));
-
+        
         res.status(200).json({ data: findTask });
     } catch (err) {
         console.error("Error getting the task for this team:", err.message);

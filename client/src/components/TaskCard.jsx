@@ -152,7 +152,7 @@ const Project = styled.div`
   width: 40%;
   font-size: 12px;
   font-weight: 500;
-  text-align: justify;
+  text-align: left;
   color: ${({ theme }) => theme.text};
   display: -webkit-box;
   -webkit-line-clamp: 5; 

@@ -60,15 +60,6 @@ const Desc = styled.div`
   -webkit-box-orient: vertical;
 `;
 
-
-const Tags = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  gap: 6px;
-  margin-top: 8px;
-`;
-
 const Bottom = styled.div`
   display: flex;
   justify-content: space-between;

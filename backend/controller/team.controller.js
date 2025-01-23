@@ -134,7 +134,6 @@ export const updateTeam = async (req, res, next) => {
 
         const isAuthorized = await isUserAuthorized(project, team, req.user.id);
         if (!isAuthorized) {
-            console.log("You are not authorized to update the team!");
             return next(createError(403, "You are not authorized to update the team!"));
         }
 

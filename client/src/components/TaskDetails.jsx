@@ -12,6 +12,8 @@ import { Edit } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import UpdateTask from './UpdateTask';
 import { getTask, addTaskComment, getTaskComment } from "../api/index";
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   padding: 14px 14px;
@@ -85,6 +87,18 @@ const Row = styled.div`
   box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.09);
 `;
 
+const Column = styled.div`
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  border-radius: 12px;
+  color: ${({ theme }) => theme.textSoft};
+  cursor: pointer;
+  box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.09);
+`;
+
 const Card = styled.div`
   padding: 5px 8px;
   display: flex;
@@ -122,6 +136,20 @@ const Label = styled.div`
   text-decoration: none;
 `;
 
+const MemberSectionLabel = styled.div`
+  display: flex;
+  font-size: 12px;
+  margin: 0px -6px 0px;
+  align-items: center;
+  font-weight: 400;
+  min-width: 80px;
+  text-align: right;
+  text-overflow: ellipsis;
+  color: ${({ theme }) => theme.textSoft};
+  cursor: pointer; 
+  text-decoration: none;
+`;
+
 const Text = styled.div`
   display: flex;
   font-size: 14px;
@@ -133,6 +161,23 @@ const Text = styled.div`
   color: ${({ theme }) => theme.textSoft};
   cursor: pointer; 
   text-decoration: none;
+`;
+
+const ProjectText = styled.div`
+  display: flex;
+  font-size: 14px;
+  align-items: center;
+  font-weight: 500;
+  min-width: 80px;
+  text-align: right;
+  text-overflow: ellipsis;
+  color: ${({ theme }) => theme.textSoft};
+  cursor: pointer; 
+  text-decoration: none;
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+    display: inline-block;  
+  }
 `;
 
 
@@ -217,7 +262,7 @@ const CommentInputContainer = styled.div`
 `;
 
 const Members = styled.div`
-  margin: -10px 5px;
+  margin: -10px 0px;
   justify-content: center; 
   align-items: center; 
   gap: 2px;
@@ -228,8 +273,8 @@ const MemberGroup = styled.div`
   display: flex;
   justify-content: center; 
   align-items: center; 
-  gap: 4px;
   border-radius: 100px;
+  flex-direction: column;
 `;
 
 const Team = styled.div`
@@ -241,6 +286,10 @@ const Team = styled.div`
   padding: 4px 8px;
   border-radius: 8px;
   background-color: ${({ theme }) => theme.soft2 + "22"};
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+    display: inline-block;  
+  }
 `;
 
 const Value = styled.div`
@@ -340,6 +389,7 @@ const TaskDetails = () => {
   const [openUpdateTask, setOpenUpdateTask] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   
   const token = localStorage.getItem("token");
 
@@ -423,6 +473,14 @@ const TaskDetails = () => {
     }
   },[comment]);
 
+  const getProjectDetail= (project_id) =>{
+    navigate(`/project/${project_id}`);
+  }
+
+  const getTeamDetail= (team_id) =>{
+    navigate(`/team/${team_id}`);
+  }
+
   return (
       <Container>
         {openUpdateTask && <UpdateTask task_id={task_id} project_task={task} setOpenUpdateTask={setOpenUpdateTask}/>}
@@ -439,7 +497,10 @@ const TaskDetails = () => {
                 <Row>
                   <Label>Project: </Label>
                   <Value>
-                    <Text>{task.project.project_name}</Text>
+                    <Link to={`/project/${task.project._id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}>
+                      <ProjectText onClick={() => {getProjectDetail(task.project._id)}}>{task.project.project_name}</ProjectText>
+                    </Link>
                   </Value>
                 </Row>
                 <Row>
@@ -506,29 +567,30 @@ const TaskDetails = () => {
                   <Row>
                   <Members>
                   <MemberGroup key = {task._id}>
-                  {!task.assign_to.some(
-                    (task_member) => task_member._id === task.assign_by._id
-                  ) && (
+                    <Column>
+                      <MemberSectionLabel>Assigned By: </MemberSectionLabel>
                     <Tooltip title={`Assigned by: ${task.assign_by.name}`} arrow>
                       <Avatar
-                        sx={{ width: "30px", height: "30px" }}
+                        sx={{ width: "34px", height: "34px" }}
                         style={{ border: "none" }}
                       >
                         {task.assign_by.name.charAt(0).toUpperCase()}
                       </Avatar>
                     </Tooltip>
-                  )}
-
-                  {task.assign_to.map((task_member) => (
-                    <Tooltip title={`Assigned To: ${task_member.name}`} arrow key={task_member._id}>
-                      <Avatar
-                        sx={{ width: "30px", height: "30px" }}
-                        style={{ border: "none" }}
-                      >
-                        {task_member.name.charAt(0).toUpperCase()}
-                      </Avatar>
-                    </Tooltip>
-                    ))}
+                    </Column>
+                    <Column>
+                      <MemberSectionLabel>Assigned To: </MemberSectionLabel>
+                        {task.assign_to.map((task_member) => (
+                          <Tooltip title={`Assigned To: ${task_member.name}`} arrow key={task_member._id}>
+                            <Avatar
+                              sx={{ width: "34px", height: "34px" }}
+                              style={{ border: "none" }}
+                            >
+                              {task_member.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                          </Tooltip>
+                          ))}
+                    </Column>
                   </MemberGroup>
                   </Members>
                   </Row>
@@ -541,9 +603,9 @@ const TaskDetails = () => {
                     <Label>Teams:</Label>
                   </Row>
                   <Row>
-                  <Team style={{marginTop: "-10px"}}>
-                  {task.team.length > 0 ? task.team.map((team) => team.team_name).join(", ") : '-'}
-                </Team>
+                  {task.team.length > 0 && task.team.map((team) => (
+                    <Team key={team._id} onClick={() => getTeamDetail(team._id)}>{team.team_name}</Team>
+                  ))}
                 </Row>
                 </Body>
               </Card>
