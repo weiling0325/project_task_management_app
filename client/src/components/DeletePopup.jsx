@@ -110,54 +110,14 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteProject = async () => {
-<<<<<<< HEAD
-    await deleteProject({project_id: openDelete.project_id,  token:openDelete.token})
-      .then((res) => {
-        console.log(res);
-=======
     try {
       const res = await deleteProject({project_id: openDelete.project_id,  token:openDelete.token});
       if (res.status === 200) {
->>>>>>> master
         dispatch(openSnackbar
           ({
             message: "Project deleted successfully",
             type: "success",
           }));
-<<<<<<< HEAD
-
-        handleDeleteSuccess("/project");
-      })
-      .catch((err) => {
-        dispatch(openSnackbar
-          ({
-            message: err.message,
-            type: "error",
-          }));
-      })
-  }
-
-  const DeleteTeam = async () => {
-    await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token})
-    .then((res) => {
-      console.log(res);
-      dispatch(openSnackbar
-        ({
-          message: "Team deleted successfully",
-          type: "success",
-        }));
-
-      handleDeleteSuccess("/");
-    }
-    ).catch((err) => {
-      dispatch(openSnackbar
-        ({
-          message: err.message,
-          type: "error",
-        }));
-    }
-    )
-=======
       }
       handleDeleteSuccess("/project");
     } catch (err) {
@@ -209,7 +169,6 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
         }
         setOpenDelete({ ...openDelete, state: false });
     } 
->>>>>>> master
   }
 
   const handleDeleteSuccess = (link) => {
