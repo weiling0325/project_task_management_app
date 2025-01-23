@@ -35,7 +35,10 @@ const checkAuthorization = async (project_id, team_id, user_id) => {
             },
         },
     });
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     if (!project) throw createError(404, "Project not found!");
 
     const team = await Team.findById(team_id).populate({
@@ -47,15 +50,23 @@ const checkAuthorization = async (project_id, team_id, user_id) => {
     });
     if (!team) throw createError(404, "Team not found!");
 
+<<<<<<< HEAD
     console.log("project.created_by.toString(): ", project.created_by.toString());
     const isOwner = project.created_by.toString() === user_id;
+=======
+    const isOwner = project.created_by.toString() === user_id;
+    
+>>>>>>> master
     const isAuthorizedMember = team.member?.some(
         (member) => member.user._id.toString() === user_id && member.allow_to_modify
     );
 
+<<<<<<< HEAD
     console.log("isUserAuthorized function isOwner", isOwner);
     console.log("isUserAuthorized function isAuthorizedMember", isAuthorizedMember);
     console.log(" isOwner || isAuthorizedMember: ", isOwner || isAuthorizedMember);
+=======
+>>>>>>> master
     return isOwner || isAuthorizedMember;
 };
 
@@ -102,7 +113,12 @@ export const inviteMember = async (req, res, next) => {
             return next(createError(404, "User not found!"));
         }
 
+<<<<<<< HEAD
         if (!checkAuthorization(project_id, id, req.user.id)) {
+=======
+        const isAuthorized = await checkAuthorization(project_id, id, req.user.id);
+        if (!isAuthorized) {
+>>>>>>> master
             return next(createError(403, "You are not allowed to invite team member to this team!"));
         }
 
@@ -259,7 +275,12 @@ export const updateMember = async (req, res, next) => {
     try {
         console.log("updateMember req.body: ", req.body);
         console.log("updateMember api");
+<<<<<<< HEAD
         if (!checkAuthorization(req.body.project_id, req.body.team_id, req.user.id)) {
+=======
+        const isAuthorized = await checkAuthorization(req.body.project_id, req.body.team_id, req.user.id);
+        if (!isAuthorized) {
+>>>>>>> master
             return next(createError(403, "You are not allowed to update the team member for this team!"));
         }
 

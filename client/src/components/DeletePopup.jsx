@@ -110,14 +110,21 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteProject = async () => {
+<<<<<<< HEAD
     await deleteProject({project_id: openDelete.project_id,  token:openDelete.token})
       .then((res) => {
         console.log(res);
+=======
+    try {
+      const res = await deleteProject({project_id: openDelete.project_id,  token:openDelete.token});
+      if (res.status === 200) {
+>>>>>>> master
         dispatch(openSnackbar
           ({
             message: "Project deleted successfully",
             type: "success",
           }));
+<<<<<<< HEAD
 
         handleDeleteSuccess("/project");
       })
@@ -150,6 +157,59 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
         }));
     }
     )
+=======
+      }
+      handleDeleteSuccess("/project");
+    } catch (err) {
+        if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to delete this project!",
+            type: "error",
+          })
+          );
+        } else {
+          dispatch(
+            openSnackbar({
+              message: err.response?.data?.message || "Failed to delete project",
+              type: "error",
+            })
+          );
+        }
+        setOpenDelete({ ...openDelete, state: false });
+    } 
+  }
+
+  const DeleteTeam = async () => {
+    try {
+      const res = await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token});
+      if (res.status === 200) {
+        dispatch(openSnackbar
+          ({
+            message: "Project deleted successfully",
+            type: "success",
+          }));
+      }
+      handleDeleteSuccess("/");
+    } catch (err){
+      if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to delete this team!",
+            type: "error",
+          })
+          );
+        } else {
+          dispatch(
+            openSnackbar({
+              message: err.response?.data?.message || "Failed to delete team",
+              type: "error",
+            })
+          );
+        }
+        setOpenDelete({ ...openDelete, state: false });
+    } 
+>>>>>>> master
   }
 
   const handleDeleteSuccess = (link) => {

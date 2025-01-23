@@ -296,7 +296,11 @@ export const updateTask = async (req, res, next) => {
                 });
             });
 
+<<<<<<< HEAD
             removedAssignees.map(async (id) => {
+=======
+            [...removedAssignees].map(async (id) => {
+>>>>>>> master
             const removeNotification = new Notification({
                 link: task.project._id.toString(),
                 type: "task",
@@ -310,7 +314,13 @@ export const updateTask = async (req, res, next) => {
             });
             });
 
+<<<<<<< HEAD
             newAssignees.map(async (id) => {
+=======
+            console.log("newAssignees: ", newAssignees);
+            console.log("req.user: ", req.user);
+            [...newAssignees].map(async (id) => {
+>>>>>>> master
                 const addNotification = new Notification({
                     link: task.project._id.toString(),
                     type: "task",
