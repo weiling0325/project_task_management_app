@@ -183,33 +183,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
           [e.target.name]: e.target.value,
         }));
       };
-
-    // const UpdateProject = () => {
-    //     setLoading(true);
-    //     setDisabled(true);
-    //     const project = { ...inputs };
-    //     updateProject({ project_id: inputs.id, updateData: project, token })
-    //     .then(() => {
-    //         setLoading(false);
-    //         setOpenUpdate({ ...openUpdate, state: false });
-    //         dispatch(
-    //           openSnackbar({
-    //             message: "Project updated successfully",
-    //             type: "success",
-    //           })
-    //         );
-    //       })
-    //       .catch((err) => {
-    //         setLoading(false);
-    //         setDisabled(false);
-    //         dispatch(
-    //           openSnackbar({
-    //             message: err.message || "Failed to update project",
-    //             type: "error",
-    //           })
-    //         );
-    //       });
-    //   };
       
     const UpdateProject = async() => {
       try {
@@ -227,7 +200,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
               })
             );
         } else if (res.status === 403){
-          console.log("You are not allowed to update this project!");
+          console.log("You are not authorized to update this project!");
             dispatch(
               openSnackbar({
                 message: `You are not allowed to update this project!`,
@@ -239,7 +212,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
         if (err.response?.status === 403) {
           dispatch(
             openSnackbar({
-              message: "You are not allowed to update this project!",
+              message: "You are not authorized to update this project!",
               type: "error",
             })
           );
@@ -251,15 +224,12 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
             })
           );
         }
-        console.log("err when inviting members:", err);
-        console.log("err.response", err.response?.data?.message);
         setDisabled(false);
       } finally {
         setLoading(false);
         setOpenUpdate({ ...openUpdate, state: false });
       }
     };
-
 
     useEffect(() => {
         const { project_name, project_description, start_date, end_date, project_status } = inputs;

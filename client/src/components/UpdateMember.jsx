@@ -151,59 +151,76 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   
-  const updateTeamMember = ( member, member_id) => {
-    setLoading(true);
-    const input = {project_id: project_id, team_id: team_id, user_id: member_id, member_id: member_id, member_role: member.member_role, allow_to_modify: member.allow_to_modify };
-    updateMember({member_id: member_id, member: input, token})
-    .then((res) => {
-      setLoading(false);
-      setOpenUpdate(false);
-      dispatch(
+  const updateTeamMember = async(member, member_id) => {
+    try {
+      setLoading(true);
+      const input = {project_id: project_id, team_id: team_id, user_id: member_id, member_id: member_id, member_role: member.member_role, allow_to_modify: member.allow_to_modify };
+      const res = await updateMember({member_id: member_id, member: input, token});
+      if (res.status === 200) {
+        dispatch(
           openSnackbar({
               message: "Team member updated successfully",
               type: "success",
           })
-      );
-    })
-    .catch ((err) => {
-        console.log(err);
-        setLoading(false);
-        setOpenUpdate(false);
-        dispatch(
-            openSnackbar({
-                message: err.message,
-                type: "error",
-            })
         );
-      });
-  }
-
-  const removeTeamMember = (member, member_id) => {
-    setLoading(true);
-    const input = { project_id: project_id, team_id: team_id, user_id: member_id };
-    removeMember({member_id: member_id, member: input, token})
-    .then((res) => {
+      }
+    } catch (err) {
+       if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to update this member!",
+            type: "error",
+          })
+        );
+      } else {
+        dispatch(
+          openSnackbar({
+            message: err.response?.data?.message || "Failed to update member",
+            type: "error",
+          })
+        );
+      }
+    } finally {
       setLoading(false);
       setOpenUpdate(false);
-      dispatch(
-          openSnackbar({
-              message: "Team member is removed successfully",
-              type: "success",
-          })
-      );
-    })
-    .catch ((err) => {
-        console.log(err);
-        setLoading(false);
-        dispatch(
+    }
+  }
+
+  const removeTeamMember = async(member_id) => {
+    try {
+      const input = { project_id: project_id, team_id: team_id, user_id: member_id };
+      const res = await removeMember({member_id: member_id, member: input, token});
+        if (res.status === 200) {
+          dispatch(
             openSnackbar({
-                message: err.message,
-                type: "error",
+                message: "Team member is removed successfully",
+                type: "success",
             })
         );
-      });
+      }
+    } catch (err) {
+      if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to remove this member!",
+            type: "error",
+          })
+        );
+      } else {
+        dispatch(
+          openSnackbar({
+            message: err.response?.data?.message || "Failed to update member",
+            type: "error",
+          })
+        );
+      }
 
+    } finally {
+      setOpenUpdate(false);
+      setLoading(false);
+    }
   }
+  
   
   return (
       <Modal open={true} onClose={() => setOpenUpdate(false)}>

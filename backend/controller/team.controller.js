@@ -19,25 +19,38 @@ const getProjectById = async (projectId) => {
     });
 };
 
-const isUserAuthorized = async (project, userId, isOwnerCheck = false) => {
-    console.log("isUserAuthorized userId", userId);
-    console.log("isUserAuthorized project.created_by.toString()", project.created_by.toString());
+const getTeamById = async (team_id) => {
+    return await Team.findById(team_id).populate({
+        path: "member",
+        populate: {
+            path: "user"
+        },
+    })
+};
+
+const isUserAuthorized = async (project, team, userId) => {
     const isOwner = project.created_by.toString() === userId;
 
-    let isAuthorizedMember = false;
-        await Promise.all(
-            project.assign_to.map(async (team) => {
-                const isModifier = team.member.find(
-                    (member) =>
-                        member.user._id.toString() === userId 
-                );
-                if (isModifier) isAuthorizedMember = true;
-
-            })
+    const isAuthorizedMember = await Promise.all(
+        project.assign_to.map(async (team) => 
+            team.member.some(
+                (member) =>
+                    member.user._id.toString() === userId && member.allow_to_modify
+            )
+        )
+    ).then(results => results.some(Boolean));
+    let isTeamMember = false;
+    if (team) {
+        const isTeamMember = team.member.some(
+            (member) => member.user._id.toString() === userId
         );
-    console.log("isUserAuthorized function isOwnerCheck", isOwnerCheck);
-    console.log("isUserAuthorized function isAuthorizedMember", isAuthorizedMember);
-    return isOwnerCheck ? isOwner : isOwner || isAuthorizedMember;
+
+        if (isTeamMember) {
+            return false; 
+        }
+    }
+
+    return isOwner || isAuthorizedMember;
 };
 
 export const addTeam = async (req, res, next) => {
@@ -50,12 +63,11 @@ export const addTeam = async (req, res, next) => {
             return next(createError(404, "Project not found"));
         }
 
-        if (!isUserAuthorized(project, req.user.id)) {
-            console.log("User not authorized");
+        const isAuthorized = await isUserAuthorized(project, null, req.user.id);
+        if (!isAuthorized) {
             return next(createError(403, "You are not allowed to add a team to this project!"));
         }
 
-        console.log("Checking for existing team...");
         const existingTeam = await Team.findOne({
             project: req.body.project_id,
             team_name: req.body.team.team_name,
@@ -100,31 +112,20 @@ export const addTeam = async (req, res, next) => {
 
 export const updateTeam = async (req, res, next) => {
     try {
-        console.log("updateTeam req.body:", req.body);
-        console.log("updateTeam req.params:", req.params.team_id);
         const project = await getProjectById(req.body.project_id);
         if (!project) {
             return next(createError(404, "Project not found"));
         }
 
-        console.log("req.user.id:", req.user.id);
-        if (!isUserAuthorized(project, req.user.id)) {
-            return next(createError(403, "You are not allowed to update the team!"));
-        }
-
-        const team = await Team.findById(req.params.team_id).populate({
-            path: "member",
-            select: "task member_role",
-            populate: {
-                path: "user",
-                populate: {
-                    path: "account",
-                    select: "_id name email",
-                }
-            },
-        });
+        const team = await getTeamById(req.params.team_id);
         if (!team) {
             return next(createError(404, "Team not found"));
+        }
+
+        const isAuthorized = await isUserAuthorized(project, team, req.user.id);
+        if (!isAuthorized) {
+            console.log("You are not authorized to update the team!");
+            return next(createError(403, "You are not authorized to update the team!"));
         }
 
         const updatedTeam = await Team.findByIdAndUpdate(
@@ -182,24 +183,20 @@ export const deleteTeam = async (req, res, next) => {
     session.startTransaction();
 
     try {
-        console.log("delete team api");
         const project = await getProjectById(req.body.project_id);
         if (!project) {
             return next(createError(404, "Project not found"));
         }
 
-        if (!isUserAuthorized(project, req.user.id)) {
-            console.log("!isUserAuthorized error");
-            return next(createError(403, "Only the authorized member can remove this team!"));
-        }
-        const team = await Team.findById(req.params.team_id).populate({
-            path: "member",
-            populate: {
-                path: "user"
-            }
-        });
+        const team = await getTeamById(req.params.team_id);
+
         if (!team) {
             return next(createError(404, "Team not found"));
+        }
+
+        const isAuthorized = await isUserAuthorized(project, team, req.user.id);
+        if (!isAuthorized) {
+            return next(createError(403, "Only the authorized member can remove this team!"));
         }
 
         await Promise.all(

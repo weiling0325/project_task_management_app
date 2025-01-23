@@ -110,46 +110,65 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteProject = async () => {
-    await deleteProject({project_id: openDelete.project_id,  token:openDelete.token})
-      .then((res) => {
-        console.log(res);
+    try {
+      const res = await deleteProject({project_id: openDelete.project_id,  token:openDelete.token});
+      if (res.status === 200) {
         dispatch(openSnackbar
           ({
             message: "Project deleted successfully",
             type: "success",
           }));
-
-        handleDeleteSuccess("/project");
-      })
-      .catch((err) => {
-        dispatch(openSnackbar
-          ({
-            message: err.message,
+      }
+      handleDeleteSuccess("/project");
+    } catch (err) {
+        if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to delete this project!",
             type: "error",
-          }));
-      })
+          })
+          );
+        } else {
+          dispatch(
+            openSnackbar({
+              message: err.response?.data?.message || "Failed to delete project",
+              type: "error",
+            })
+          );
+        }
+        setOpenDelete({ ...openDelete, state: false });
+    } 
   }
 
   const DeleteTeam = async () => {
-    await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token})
-    .then((res) => {
-      console.log(res);
-      dispatch(openSnackbar
-        ({
-          message: "Team deleted successfully",
-          type: "success",
-        }));
-
+    try {
+      const res = await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token});
+      if (res.status === 200) {
+        dispatch(openSnackbar
+          ({
+            message: "Project deleted successfully",
+            type: "success",
+          }));
+      }
       handleDeleteSuccess("/");
-    }
-    ).catch((err) => {
-      dispatch(openSnackbar
-        ({
-          message: err.message,
-          type: "error",
-        }));
-    }
-    )
+    } catch (err){
+      if (err.response?.status === 403) {
+        dispatch(
+          openSnackbar({
+            message: "You are not authorized to delete this team!",
+            type: "error",
+          })
+          );
+        } else {
+          dispatch(
+            openSnackbar({
+              message: err.response?.data?.message || "Failed to delete team",
+              type: "error",
+            })
+          );
+        }
+        setOpenDelete({ ...openDelete, state: false });
+    } 
   }
 
   const handleDeleteSuccess = (link) => {

@@ -363,9 +363,6 @@ const TeamDetails = () => {
               <SubCards>
                 <SubCardTop>
                   <SubCardsTitle>Members</SubCardsTitle>
-                  <IcoBtn onClick={() => setOpenUpdate({ state: true, type: 'member', data: team })}>
-                    <Edit sx={{ fontSize: "16px" }} />
-                  </IcoBtn>
                 </SubCardTop>
                 <MemberCard team={team} >
                   <ButtonsContainer>

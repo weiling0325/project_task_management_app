@@ -121,13 +121,14 @@ const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
         });
     };
 
-    const updateTeamData = () => {
+    const updateTeamData = async() => {
         setLoading(true);
         setDisabled(true);
         setBackDisabled(true);
-        const team = {project_id: projectId, team_id: openUpdate.data._id, team_name: inputs.team_name, team_role: inputs.team_role};
-        updateTeam({team_id: openUpdate.data._id, team: team, token:token})
-            .then((res) => {
+        try {
+            const team = {project_id: projectId, team_id: openUpdate.data._id, team_name: inputs.team_name, team_role: inputs.team_role};
+            const res = await updateTeam({team_id: openUpdate.data._id, team: team, token:token});
+            if (res.status === 200) {
                 setLoading(false);
                 setOpenUpdate({ ...openUpdate, state: false });
                 dispatch(
@@ -136,21 +137,31 @@ const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
                         type: "success",
                     })
                 );
-            })
-            .catch((err) => {
-                console.log(err);
-                setLoading(false);
-                setDisabled(false);
-                setBackDisabled(false);
+            }
+        } catch (err) {
+            if (err.response?.status === 403) {
                 dispatch(
-                    openSnackbar({
-                        message: err.message,
-                        type: "error",
-                    })
+                  openSnackbar({
+                    message: "You are not authorized to update this team!",
+                    type: "error",
+                  })
                 );
-            });
-    };
-
+              } else {
+                dispatch(
+                  openSnackbar({
+                    message: err.response?.data?.message || "Failed to update team",
+                    type: "error",
+                  })
+                );
+              }
+        } finally{
+            setOpenUpdate({ ...openUpdate, state: false });
+            setLoading(false);
+            setDisabled(false);
+            setBackDisabled(false);
+        }
+    }
+  
     useEffect(() => {
         if (inputs.team_name === "" || inputs.team_role === "") {
             setDisabled(true)
