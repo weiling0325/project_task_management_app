@@ -173,7 +173,6 @@ const ButtonsContainer = styled.div`
 
 const TeamDetails = () => {
   const { team_id } = useParams();
-  const project_id ="";
   const [team, setTeam] = useState([]);
   const [member, setMember] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -363,12 +362,6 @@ const TeamDetails = () => {
               <SubCards>
                 <SubCardTop>
                   <SubCardsTitle>Members</SubCardsTitle>
-<<<<<<< HEAD
-                  <IcoBtn onClick={() => setOpenUpdate({ state: true, type: 'member', data: team })}>
-                    <Edit sx={{ fontSize: "16px" }} />
-                  </IcoBtn>
-=======
->>>>>>> master
                 </SubCardTop>
                 <MemberCard team={team} >
                   <ButtonsContainer>

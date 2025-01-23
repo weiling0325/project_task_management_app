@@ -183,36 +183,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
           [e.target.name]: e.target.value,
         }));
       };
-<<<<<<< HEAD
-
-    // const UpdateProject = () => {
-    //     setLoading(true);
-    //     setDisabled(true);
-    //     const project = { ...inputs };
-    //     updateProject({ project_id: inputs.id, updateData: project, token })
-    //     .then(() => {
-    //         setLoading(false);
-    //         setOpenUpdate({ ...openUpdate, state: false });
-    //         dispatch(
-    //           openSnackbar({
-    //             message: "Project updated successfully",
-    //             type: "success",
-    //           })
-    //         );
-    //       })
-    //       .catch((err) => {
-    //         setLoading(false);
-    //         setDisabled(false);
-    //         dispatch(
-    //           openSnackbar({
-    //             message: err.message || "Failed to update project",
-    //             type: "error",
-    //           })
-    //         );
-    //       });
-    //   };
-=======
->>>>>>> master
       
     const UpdateProject = async() => {
       try {
@@ -230,11 +200,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
               })
             );
         } else if (res.status === 403){
-<<<<<<< HEAD
-          console.log("You are not allowed to update this project!");
-=======
           console.log("You are not authorized to update this project!");
->>>>>>> master
             dispatch(
               openSnackbar({
                 message: `You are not allowed to update this project!`,
@@ -246,11 +212,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
         if (err.response?.status === 403) {
           dispatch(
             openSnackbar({
-<<<<<<< HEAD
-              message: "You are not allowed to update this project!",
-=======
               message: "You are not authorized to update this project!",
->>>>>>> master
               type: "error",
             })
           );
@@ -262,11 +224,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
             })
           );
         }
-<<<<<<< HEAD
-        console.log("err when inviting members:", err);
-        console.log("err.response", err.response?.data?.message);
-=======
->>>>>>> master
         setDisabled(false);
       } finally {
         setLoading(false);
@@ -274,10 +231,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
       }
     };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> master
     useEffect(() => {
         const { project_name, project_description, start_date, end_date, project_status } = inputs;
         setDisabled(!project_name || !project_description || !start_date || !end_date || !project_status);

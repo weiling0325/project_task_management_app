@@ -232,10 +232,6 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
         throw new Error("Failed to send invitation.");
       }
     } catch (err) {
-<<<<<<< HEAD
-      console.log("err when inviting members:", err);
-      dispatch(openSnackbar({ message: err.message || "User is already a member of this project!", type: "error" }));
-=======
       if (err.response?.status === 403) {
         dispatch(
           openSnackbar({
@@ -251,7 +247,6 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
           })
         );
       }
->>>>>>> master
       setInvitePopup(false);
     } finally {
       setInvitePopup(false);

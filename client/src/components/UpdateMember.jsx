@@ -151,16 +151,6 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   
-<<<<<<< HEAD
-  const updateTeamMember = ( member, member_id) => {
-    setLoading(true);
-    const input = {project_id: project_id, team_id: team_id, user_id: member_id, member_id: member_id, member_role: member.member_role, allow_to_modify: member.allow_to_modify };
-    updateMember({member_id: member_id, member: input, token})
-    .then((res) => {
-      setLoading(false);
-      setOpenUpdate(false);
-      dispatch(
-=======
   const updateTeamMember = async(member, member_id) => {
     try {
       setLoading(true);
@@ -168,55 +158,10 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
       const res = await updateMember({member_id: member_id, member: input, token});
       if (res.status === 200) {
         dispatch(
->>>>>>> master
           openSnackbar({
               message: "Team member updated successfully",
               type: "success",
           })
-<<<<<<< HEAD
-      );
-    })
-    .catch ((err) => {
-        console.log(err);
-        setLoading(false);
-        setOpenUpdate(false);
-        dispatch(
-            openSnackbar({
-                message: err.message,
-                type: "error",
-            })
-        );
-      });
-  }
-
-  const removeTeamMember = (member, member_id) => {
-    setLoading(true);
-    const input = { project_id: project_id, team_id: team_id, user_id: member_id };
-    removeMember({member_id: member_id, member: input, token})
-    .then((res) => {
-      setLoading(false);
-      setOpenUpdate(false);
-      dispatch(
-          openSnackbar({
-              message: "Team member is removed successfully",
-              type: "success",
-          })
-      );
-    })
-    .catch ((err) => {
-        console.log(err);
-        setLoading(false);
-        dispatch(
-            openSnackbar({
-                message: err.message,
-                type: "error",
-            })
-        );
-      });
-
-  }
-  
-=======
         );
       }
     } catch (err) {
@@ -277,7 +222,6 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
   }
   
   
->>>>>>> master
   return (
       <Modal open={true} onClose={() => setOpenUpdate(false)}>
           <Container>

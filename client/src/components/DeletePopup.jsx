@@ -100,6 +100,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }, [name, openDelete.name]);
 
   const handleDelete = () => {
+    console.log("handleDelete: ", handleDelete)
     setLoading(true);
     setDisabled(true);
     if (openDelete.type === "Project") {
@@ -146,11 +147,10 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
       if (res.status === 200) {
         dispatch(openSnackbar
           ({
-            message: "Project deleted successfully",
+            message: "Team removed successfully",
             type: "success",
           }));
       }
-      handleDeleteSuccess("/");
     } catch (err){
       if (err.response?.status === 403) {
         dispatch(
