@@ -55,7 +55,6 @@ const isUserAuthorized = async (project, team, userId) => {
 
 export const addTeam = async (req, res, next) => {
     try {
-        console.log("req.body:", req.body);
 
         const project = await getProjectById(req.body.project_id);
         if (!project) {
@@ -219,9 +218,25 @@ export const deleteTeam = async (req, res, next) => {
             for (const member of team.member) {
                 if (member.task?.length > 0) {
                     for (const task of member.task) {
-                        await Task.findByIdAndUpdate(task._id, {
-                            $pull: { assign_to: member._id, assign_by: member._id },
-                        });
+                        if(task.assign_by === req.body.user_id){
+                            await Task.findByIdAndUpdate(task._id.toString(), {
+                                $unset: { assign_by: "" },
+                                $pull: { team: req.params.team_id },
+                            });
+                        } else {
+                            await Task.findByIdAndUpdate(task._id.toString(), {
+                                $pull: { assign_to: req.body.user_id, team: req.params.team_id },
+                            });
+                        }
+                    
+                        await User.findByIdAndUpdate(
+                            member.user._id,
+                            {
+                                $pull: {
+                                    task: task._id.toString(),
+                                }
+                            },
+                        );
                     }
                 }
                 await User.findByIdAndUpdate(member.user._id, {

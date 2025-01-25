@@ -136,7 +136,7 @@ const AddNewTeam = ({ setNewTeam, project_id  }) => {
       }
     } catch (err) {
       console.error("Error creating team:", err);
-      dispatch(openSnackbar({ message: "Something went wrong", type: "error" }));
+      dispatch(openSnackbar({ message: "A team with this name already exists for the project.", type: "error" }));
     } finally {
       setLoading(false);
       setDisabled(false);

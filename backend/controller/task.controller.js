@@ -41,13 +41,12 @@ export const assignTask = async (req, res, next) => {
             for (const user of taskDetails.user_id) {
                 if(user === req.user.id) {
                     return next(createError(403, "You cannot assign a task to yourself!"));
-                }
+                } 
                 const findUser = await User.findById(user);
                 if (!findUser) return next(createError(404, "User not found!"));
 
                 const taskCreator = await User.findById(req.user.id);
                 if (!taskCreator) return next(createError(404, "Task creator not found!"));
-
 
                 await Promise.all(
                     project.assign_to.map(async (team) => {
@@ -105,15 +104,6 @@ export const assignTask = async (req, res, next) => {
         });
         await newNotification.save();
 
-        await User.findByIdAndUpdate(req.user.id,
-            {
-                $push:
-                {
-                    task: newTask._id.toString()
-                }
-            }, { new: true }
-        );
-
         const findMember = await Member.findOne({user:taskDetails.user_id});
         await Member.findByIdAndUpdate(findMember._id.toString(),
             {
@@ -129,11 +119,20 @@ export const assignTask = async (req, res, next) => {
         );
         }
         
+        await User.findByIdAndUpdate(req.user.id,
+            {
+                $push:
+                {
+                    task: newTask.id,
+                    notification: newNotification.id
+                }
+            },
+        );
 
 
         if (taskDetails.user_id.length > 0) {
             for (const user of taskDetails.user_id) {
-                await User.findByIdAndUpdate(taskDetails.user_id,
+                await User.findByIdAndUpdate(user,
                     {
                         $push:
                         {
@@ -186,7 +185,6 @@ export const getTask = async (req, res, next) => {
 
 export const getProjectTask = async (req, res, next) => {
     try {
-        console.log("getProjectTask project_id:", req.params.project_id);
         const project_id = req.params.project_id;
         if (!project_id) return next(createError(400, "Project ID is required!"));
         const project = await Project.findById(project_id);
@@ -208,7 +206,6 @@ export const getProjectTask = async (req, res, next) => {
             })
             .sort({ createdAt: -1 });
         
-        console.log("findTask: ", findTask);
         res.status(200).json({ message: "Here are the assigned tasks of this project!", data: findTask });
     } catch (err) {
         console.error("Error getting the task for this project:", err.message);
@@ -253,7 +250,6 @@ export const updateTask = async (req, res, next) => {
         if (!task) return next(createError(404, "This task is not found!"));
 
         const taskDetails = JSON.parse(req.body.task);
-        console.log("taskDetails: ", taskDetails);
 
         const project = await Project.findById(taskDetails.project_id).populate({
             path: "assign_to",
@@ -441,7 +437,6 @@ export const addTaskComment = async (req, res, next) => {
             }, { new: true }
         );
 
-        console.log("addCommentToTask: ", addCommentToTask);
         res.status(200).json({ message: "The task comment has been added..." })
     } catch (err) {
         console.error("Error adding task comment:", err.message);
@@ -451,7 +446,6 @@ export const addTaskComment = async (req, res, next) => {
 
 export const getTaskComment = async (req, res, next) => {
     try {
-        console.log("getTaskComment api");
         const task_id = req.params.task_id;
         const task = await Task.findById(task_id).populate({
             path: "task_comment",
@@ -461,14 +455,13 @@ export const getTaskComment = async (req, res, next) => {
             }
         });
         if (!task) {
-            console.log("no task found");
             return next(createError(404, "This task is not found!"));
         }
 
         const sortedComments = task.task_comment.sort(
             (a, b) => new Date(b.comment_time) - new Date(a.comment_time)
         );
-        console.log("getTaskComment sortedComments: ", sortedComments);
+        
         res.status(200).json({ data: sortedComments });
     } catch (err) {
         console.error("Error getting task comment:", err.message);
