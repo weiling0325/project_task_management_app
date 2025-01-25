@@ -198,7 +198,6 @@ const ProjectDetails = () => {
       setProject(project);
       setTeams(project.assign_to);
       setProjectOwner(project.created_by);
-      setLoading(false);
     } catch (err) {
       console.log("fetchProject err: ", err);
       dispatch(
@@ -345,10 +344,6 @@ const ProjectDetails = () => {
     console.log("handleTeamCardClick teamid: ", teamId);
     setExpandedTeamId((prevTeamId) => (prevTeamId === teamId ? null : teamId));
   };
-
-  useEffect(() => {
-console.log("expandedTeamId: ", expandedTeamId);
-  },[expandedTeamId]);
   
 
   return (

@@ -195,14 +195,12 @@ export const getUserTask = async (req, res, next) => {
 
 export const getUserNotification = async (req, res, next) => {
     try {
-        console.log("getUserNotification...");
         const user = await User.findById(req.user.id).populate({
             path: "notification",
             select: "message link type"
         });
         if (!user) return next(createError(404, "User not found"));
 
-        console.log("getUserNotification user: ", user);
         res.status(200).json({ data: user.notification });
     } catch (error) {
         console.error("Error in getting user notification: ", error.message);

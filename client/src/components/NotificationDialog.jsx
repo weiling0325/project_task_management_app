@@ -86,7 +86,7 @@ const NotificationDialog = ({open, id, anchorEl, handleClose, currentUser, notif
                 {currentUser.name?.charAt(0).toUpperCase()}
               </Avatar>
               <Details>
-                <Title>{item.type} invitation</Title>
+                <Title>{item.type}</Title>
                 <Desc>{item.message}</Desc>
                 <Hr />
               </Details>

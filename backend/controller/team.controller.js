@@ -208,68 +208,29 @@ export const deleteTeam = async (req, res, next) => {
             return next(createError(403, "Only the authorized member can remove this team!"));
         }
 
-        await Promise.all(
-            team?.member.map(async (member) => {
-                console.log("member:", member);
-                if(member.task && member.task.length > 0) {
-                    console.log("member.task: ", member.task);
-                    await Promise.all(
-                        member.task.map(async (task)=>{
-                            console.log("task.: ", task);
-                            if(task.assign_by.toString() === member.toString()){
-                                console.log("task.toString(): ", task.toString());
-                                await Task.findByIdAndUpdate(
-                                    task._id.toString(),
-                                    {
-                                        $pull: {
-                                            assign_by: member._id.toString()
-                                        }
-                                    },
-                                    { new: true }
-                                );
-                            }
+        if(team.member.length > 0){
+            const removeNotification = new Notification({
+                link: project._id.toString(),
+                type: "Removed member from team",
+                message: `${req.user.name} removed you from team "${team.team_name}".`,
+            });
+            removeNotification.save();
 
-                            if(task.assign_to.toString() === member._id.toString()){
-                                await Task.findByIdAndUpdate(
-                                    task._id.toString(),
-                                    {
-                                        $pull: {
-                                            assign_to: member._id.toString()
-                                        }
-                                    },
-                                    { new: true }
-                                );
-                            }
-
-                            await User.findByIdAndUpdate(
-                                member.user._id.toString(),
-                                {
-                                    $pull: {
-                                        task: task._id.toString(),
-                                    },
-                                },
-                                { new: true }
-                            );
-                        })
-                    )
-                } 
-
-                console.log("member._id.toString(): ",member._id.toString());
-                await Member.findByIdAndDelete(member._id.toString());
-
-                console.log("member.user._id.toString: ", member.user._id.toString());
-                await User.findByIdAndUpdate(
-                    member.user._id.toString(),
-                    {
-                        $pull: {
-                            assign_to: req.params.team_id,
-                            project: req.body.project_id,
-                        },
-                    },
-                    { new: true }
-                );
-            })
-        );
+            for (const member of team.member) {
+                if (member.task?.length > 0) {
+                    for (const task of member.task) {
+                        await Task.findByIdAndUpdate(task._id, {
+                            $pull: { assign_to: member._id, assign_by: member._id },
+                        });
+                    }
+                }
+                await User.findByIdAndUpdate(member.user._id, {
+                    $pull: { project: req.body.project_id, team: req.params.team_id },
+                    $push: {notification: removeNotification._id.toString()}
+                });
+                await Member.findByIdAndDelete(member._id);
+            }
+        }
 
         await Team.findByIdAndDelete(req.params.team_id);
 
@@ -280,7 +241,6 @@ export const deleteTeam = async (req, res, next) => {
                     assign_to: req.params.team_id
                 }
             },
-            { new: true }
         );
 
         await session.commitTransaction();

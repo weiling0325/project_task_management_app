@@ -186,9 +186,11 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
     }
   }
 
-  const removeTeamMember = async(member_id) => {
+  const removeTeamMember = async(member_id, user_id) => {
+    console.log("removeTeamMember member_id: ", member_id);
+    console.log("removeTeamMember, user_id: " , user_id);
     try {
-      const input = { project_id: project_id, team_id: team_id, user_id: member_id };
+      const input = { project_id: project_id, team_id: team_id, user_id: user_id };
       const res = await removeMember({member_id: member_id, member: input, token});
         if (res.status === 200) {
           dispatch(
@@ -298,7 +300,7 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
                         <InviteButton onClick={() => updateTeamMember(user, user._id)}>
                           {Loading ? <CircularProgress size={20} /> : "Update"}
                         </InviteButton>
-                        <InviteButton onClick={() => removeTeamMember(user, user._id)}>
+                        <InviteButton onClick={() => removeTeamMember(user._id, user.user._id)}>
                           {Loading ? <CircularProgress size={20} /> : "Remove"}
                         </InviteButton>
                       </ButtonGroup>

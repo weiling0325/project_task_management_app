@@ -2,21 +2,18 @@ import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
 import Member from "../models/member.model.js";
 import mongoose from "mongoose";
+import Team from "../models/team.model.js";
+import Task from "../models/task.model.js";
 
 export const addProject = async (req, res) => {
     const session = await mongoose.startSession(); 
     session.startTransaction();
 
     try {
-        console.log("addProject api");
-        console.log("req.user", req.user.id);
-
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
-        console.log("req.body", req.body.project);
 
         const newProject = new Project({
             ...req.body.project,
@@ -36,9 +33,6 @@ export const addProject = async (req, res) => {
             { created_by: req.user.id },
             { new: true }
         );
-
-        console.log("user.id", user.id);
-        console.log("savedProject._id", savedProject._id.toString());
 
         await User.findByIdAndUpdate(
             req.user.id,
@@ -84,18 +78,15 @@ const findProjectById = async (projectId) => {
 
 export const getProject = async (req, res) => {
     try {
-        console.log("getProject api");
         const project_id = req.params.project_id;
-        console.log("project_id: ", project_id);
         if (!project_id) {
             return res.status(400).json({ message: "Project ID is required!" });
         }
+
         const project = await findProjectById(project_id);
        if (!project) {
             return res.status(404).json({ message: "Project not found!" });
         }
-        console.log("getProject project: ", project);
-
         let isAuthorizedMember = false;
         await Promise.all(
             project.assign_to.map(async (team) => {
@@ -114,7 +105,6 @@ export const getProject = async (req, res) => {
             return res.status(403).json({ message: "You are not allowed to view this project!" });
         }
 
-        console.log("project: ", project);
         res.status(200).json({ data: project });
     } catch (err) {
         console.error("Error fetching project:", err.message);
@@ -153,6 +143,7 @@ export const updateProject = async (req, res) => {
             { $set: updateData },
             { new: true }
         );
+        
         res.status(200).json({ message: "Project has been updated", data: updatedProject });
     } catch (err) {
         console.error("Error updating project:", err.message);
@@ -161,11 +152,10 @@ export const updateProject = async (req, res) => {
 };
 
 export const deleteProject = async (req, res) => {
-    const session = await mongoose.startSession(); 
+const session = await mongoose.startSession(); 
     session.startTransaction();
 
     try {
-        console.log("deleteProject api req.params.project_id", req.params.project_id);
         const id = req.params.project_id;
         const project = await findProjectById(id);
         if (!project) {
@@ -177,8 +167,24 @@ export const deleteProject = async (req, res) => {
             return res.status(403).json({ message: "Only project owner is allowed to delete this project!" });
         }
 
-        await Project.findByIdAndDelete(id);
+        if(project.assign_to?.length > 0){
+            for (const team of project.assign_to) {
+                for (const member of team.member) {
+                    await User.findByIdAndUpdate(member.user._id.toString(), {
+                        $pull: { project: id, team: team._id.toString() },
+                    });
+                    await Member.findByIdAndDelete(member._id.toString());
+                }
+                await Team.findByIdAndDelete(team._id.toString());
+            }
+        }
 
+        if(project.task?.length > 0) {
+            for (const task of project.task) {
+                await Task.findByIdAndDelete(task._id.toString());
+            }
+        }
+        await Project.findByIdAndDelete(id);
 
         await session.commitTransaction();
         session.endSession();

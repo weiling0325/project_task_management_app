@@ -337,6 +337,7 @@ const MemberGroup = styled.div`
   border-radius: 100px;
 `;
 
+
 const TaskCard =({project_task, displayProjectColumn=false}) => {
   const [tasks, setTasks] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -386,7 +387,7 @@ const TaskCard =({project_task, displayProjectColumn=false}) => {
     new Set(
       tasks.flatMap((task) =>
         [
-          task.assign_by.name,
+          task.assign_by?.name,
           ...task.assign_to.map((member) => member.name),
         ].filter(Boolean)
       )
@@ -555,10 +556,9 @@ return (
               <TableCell width="2" key = {task._id}>
                 <Members>
                   <MemberGroup key = {task._id}>
-                  {!task.assign_to.some(
-                    (task_member) => task_member._id === task.assign_by._id
-                  ) && (
-                    <Tooltip title={`${task.assign_by.name}`} arrow>
+                  {task?.assign_by
+                   ? (
+                    <Tooltip title={`Assigned by ${task.assign_by.name}`} arrow>
                       <Avatar
                         sx={{ width: "30px", height: "30px" }}
                         key={task.assign_by._id}
@@ -567,18 +567,40 @@ return (
                         {task.assign_by.name.charAt(0).toUpperCase()}
                       </Avatar>
                     </Tooltip>
-                  )}
-
-                  {task.assign_to.map((task_member) => (
-                    <Tooltip title={`${task_member.name}`} arrow key={task_member._id}>
+                  ) : (
+                    <Tooltip title={`Member has been removed...`} arrow>
                       <Avatar
                         sx={{ width: "30px", height: "30px" }}
+                        key={task.assign_by}
                         style={{ border: "none" }}
                       >
-                        {task_member.name.charAt(0).toUpperCase()}
+                        ?
                       </Avatar>
                     </Tooltip>
-                    ))}
+                  )}
+                  {task.assign_to.length >0 ? (
+                    task.assign_to.map((task_member) => (
+                      <Tooltip title={`Assigned to ${task_member.name}`} arrow key={task_member._id}>
+                        <Avatar
+                          sx={{ width: "30px", height: "30px" }}
+                          style={{ border: "none" }}
+                        >
+                          {task_member.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </Tooltip>
+                      ))
+                  ): (
+                    <Tooltip title={`Member has been removed...`} arrow>
+                      <Avatar
+                        sx={{ width: "30px", height: "30px" }}
+                        key={task.assign_to}
+                        style={{ border: "none" }}
+                      >
+                        ?
+                      </Avatar>
+                    </Tooltip>
+
+                  )}
                   </MemberGroup>
               </Members>
             </TableCell>

@@ -92,11 +92,12 @@ const Column = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   border-radius: 12px;
   color: ${({ theme }) => theme.textSoft};
   cursor: pointer;
   box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.09);
+  margin: 0px 0px;
 `;
 
 const Card = styled.div`
@@ -135,19 +136,14 @@ const Label = styled.div`
   cursor: pointer; 
   text-decoration: none;
 `;
-
 const MemberSectionLabel = styled.div`
-  display: flex;
   font-size: 12px;
-  margin: 0px -6px 0px;
-  align-items: center;
   font-weight: 400;
+  margin: 0px -10px 0px;
   min-width: 80px;
   text-align: right;
   text-overflow: ellipsis;
   color: ${({ theme }) => theme.textSoft};
-  cursor: pointer; 
-  text-decoration: none;
 `;
 
 const Text = styled.div`
@@ -263,19 +259,18 @@ const CommentInputContainer = styled.div`
 `;
 
 const Members = styled.div`
-  margin: -10px 0px;
-  justify-content: center; 
-  align-items: center; 
-  gap: 2px;
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-start; 
+  gap: 16px; 
   flex-wrap: wrap;
+  margin: -10px 0px;
 `;
 
 const MemberGroup = styled.div`
   display: flex;
-  justify-content: center; 
-  align-items: center; 
-  border-radius: 100px;
   flex-direction: column;
+  gap: 8px;
 `;
 
 const Team = styled.div`
@@ -566,22 +561,28 @@ const TaskDetails = () => {
                     <Label>Members:</Label>
                   </Row>
                   <Row>
+                    
                   <Members>
                   <MemberGroup key = {task._id}>
                     <Column>
                       <MemberSectionLabel>Assigned By: </MemberSectionLabel>
-                    <Tooltip title={`Assigned by: ${task.assign_by.name}`} arrow>
-                      <Avatar
-                        sx={{ width: "34px", height: "34px" }}
-                        style={{ border: "none" }}
-                      >
-                        {task.assign_by.name.charAt(0).toUpperCase()}
-                      </Avatar>
-                    </Tooltip>
+                      {task.assign_by? (
+                        <Tooltip title={`Assigned by: ${task.assign_by.name}`} arrow>
+                        <Avatar
+                          sx={{ width: "34px", height: "34px" }}
+                          style={{ border: "none" }}
+                        >
+                          {task.assign_by.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                      </Tooltip>
+                      ): (
+                        <Null>Member has been removed...</Null>
+                      )}
                     </Column>
                     <Column>
                       <MemberSectionLabel>Assigned To: </MemberSectionLabel>
-                        {task.assign_to.map((task_member) => (
+                      {task.assign_to.length > 0 ? (
+                        task.assign_to.map((task_member) => (
                           <Tooltip title={`Assigned To: ${task_member.name}`} arrow key={task_member._id}>
                             <Avatar
                               sx={{ width: "34px", height: "34px" }}
@@ -590,7 +591,10 @@ const TaskDetails = () => {
                               {task_member.name.charAt(0).toUpperCase()}
                             </Avatar>
                           </Tooltip>
-                          ))}
+                          ))
+                      ): (
+                        <Null>Member has been removed...</Null>
+                      )}
                     </Column>
                   </MemberGroup>
                   </Members>

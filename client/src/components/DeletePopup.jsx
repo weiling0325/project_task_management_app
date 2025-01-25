@@ -125,7 +125,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
         if (err.response?.status === 403) {
         dispatch(
           openSnackbar({
-            message: "You are not authorized to delete this project!",
+            message: "Only project owner is allowed to delete this project!",
             type: "error",
           })
           );

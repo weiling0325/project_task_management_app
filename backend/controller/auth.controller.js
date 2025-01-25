@@ -75,8 +75,6 @@ export const signin = async (req, res, next) => {
 export const googleAuthSignIn = async (req, res, next) => {
     try {
         const account = await Account.findOne({ email: req.body.email });
-        console.log("account: ", account);
-        console.log("req.body.email: ", req.body.email);
         if (!account) {
             try {
                 const accountId = new mongoose.Types.ObjectId();

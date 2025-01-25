@@ -100,7 +100,7 @@ export const assignTask = async (req, res, next) => {
 
         const newNotification = new Notification({
             link: project.id,
-            type: "task",
+            type: "Task Invitation",
             message: `"${createdTaskUser.account.name}" assigned you to task "${newTask.task_title}"  in project "${project.project_name.toUpperCase()}".`,
         });
         await newNotification.save();
@@ -114,11 +114,22 @@ export const assignTask = async (req, res, next) => {
             }, { new: true }
         );
 
-        await Member.findByIdAndUpdate(taskDetails.user_id,
+        const findMember = await Member.findOne({user:taskDetails.user_id});
+        await Member.findByIdAndUpdate(findMember._id.toString(),
             {
                 $push: { task: newTask._id.toString() }
             }, { new: true }
         );
+        const taskCreator = await Member.findOne({user:req.user.id});
+        if(taskCreator) {
+            await Member.findByIdAndUpdate(findMember._id.toString(),
+            {
+                $push: { task: newTask._id.toString() }
+            }, { new: true }
+        );
+        }
+        
+
 
         if (taskDetails.user_id.length > 0) {
             for (const user of taskDetails.user_id) {
@@ -283,7 +294,6 @@ export const updateTask = async (req, res, next) => {
 
         let involvedTeam = [];
         const taskCreator = task.assign_by;
-        console.log("taskCreator: ", taskCreator);
         if (assignToModified) {
             project.assign_to.map(async (team) => {
                 team.member.map(async (member) => {
@@ -296,7 +306,7 @@ export const updateTask = async (req, res, next) => {
             [...removedAssignees].map(async (id) => {
             const removeNotification = new Notification({
                 link: task.project._id.toString(),
-                type: "task",
+                type: "Removed member from task",
                 message: `${req.user.name} removed you from task "${task.task_title}".`,
             });
             removeNotification.save();
@@ -314,7 +324,7 @@ export const updateTask = async (req, res, next) => {
 
                 const addNotification = new Notification({
                     link: task.project._id.toString(),
-                    type: "task",
+                    type: "Task Invitation",
                     message: `${req.user.name} assigned you to task "${taskDetails.task_title}".`,
                 });
                 addNotification.save();
@@ -340,7 +350,6 @@ export const updateTask = async (req, res, next) => {
                     ...(assignToModified && { team: involvedTeam }),
                 },
             },
-            { new: true }
         );
 
         if(involvedTeam.length > 0) {
@@ -351,6 +360,31 @@ export const updateTask = async (req, res, next) => {
                     }
                 }
             );
+        }
+
+        const requestor = await User.findById(req.user.id).populate({
+            path: "account",
+            select: "name email"
+        });
+
+        const modifyNotification = new Notification({
+            link: task.project._id.toString(),
+            type: "Task Updated",
+            message: `${requestor.name} updated task "${task.task_title}".`,
+        });
+        modifyNotification.save();
+
+        await User.findByIdAndUpdate(updatedTask.assign_by._id.toString(),
+            { 
+                $push: { notification: modifyNotification._id.toString()} 
+            }
+        );
+        
+        for (const user of updatedTask.assign_to) {
+            await User.findByIdAndUpdate(user._id.toString(),
+            { 
+                $push: {notification: modifyNotification._id.toString() }
+            });
         }
 
         res.status(200).json({ data: updatedTask });

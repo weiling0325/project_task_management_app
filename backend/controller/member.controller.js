@@ -9,11 +9,11 @@ import dotenv from "dotenv";
 import { createError } from "../error.js";
 import Account from "../models/account.model.js";
 import mongoose from "mongoose";
+import Notification from "../models/notification.model.js";
 
 dotenv.config();
 
 const checkMemberExist = async (member_id) => {
-    console.log("checkMemberExist");
     const member = await Member.findById(member_id).
         populate({
             path: "user",
@@ -70,11 +70,7 @@ export const inviteMember = async (req, res, next) => {
         const { id } = req.params;
         const { project_id, user_id, email, allow_to_modify, member_role } = req.body;
 
-        console.log("inviteMember id: ", id);
-        console.log("req.body: ", req.body)
-
         if (!project_id || !user_id || !email) {
-            console.log("missing project_id, user_id, email ");
             return next(createError(400, "Invalid input payload!"));
         }
 
@@ -88,13 +84,11 @@ export const inviteMember = async (req, res, next) => {
             },
         });;
         if (!project) {
-            console.log("!project");
             return next(createError(404, "Project not found!"));
         }
 
         const user = await Account.findById(user_id);
         if (!user) {
-            console.log("!user");
             return next(createError(404, "User not found!"));
         }
 
@@ -114,19 +108,14 @@ export const inviteMember = async (req, res, next) => {
             },
         });
 
-        console.log("team: ", team);
         if (!team) {
-            console.log("!team");
             return next(createError(404, "Team not found!"));
         }
 
         let memberExist = false;
         project.assign_to.forEach((team) => {
-            console.log("team mapping");
             team.member.forEach((member) => {
-                console.log("Checking member.user._id");
                 if (member.user._id.toString() === user_id) {
-                    console.log("Member already exists");
                     memberExist = true;
                     return; 
                 }
@@ -142,7 +131,6 @@ export const inviteMember = async (req, res, next) => {
         }
         
         req.app.locals.CODE = await otpGenerator.generate(8, { upperCaseAlphabets: true, specialChars: true, lowerCaseAlphabets: true, digits: true, });
-        console.log("inviteMember req.app.locals.CODE: ", req.app.locals.CODE);
         const link = `${process.env.WEBPAGE}/member/invite/${req.app.locals.CODE}?user_id=${user_id}&team_id=${id}&member_role=${member_role}&allow_to_modify=${allow_to_modify}`;
         console.log("inviteMember link: ", link);
         const mailBody = `
@@ -254,8 +242,6 @@ export const getMember = async (req, res, next) => {
 
 export const updateMember = async (req, res, next) => {
     try {
-        console.log("updateMember req.body: ", req.body);
-        console.log("updateMember api");
         const isAuthorized = await checkAuthorization(req.body.project_id, req.body.team_id, req.user.id);
         if (!isAuthorized) {
             return next(createError(403, "You are not allowed to update the team member for this team!"));
@@ -274,7 +260,7 @@ export const updateMember = async (req, res, next) => {
                 },
             }, { new: true }
         );
-        console.log("updateMember: ", updateMember);
+        
         res.status(200).json({ data: updateMember });
     } catch (err) {
         console.error("Error updating team member:", err.message);
@@ -287,15 +273,15 @@ export const removeMember = async (req, res, next) => {
     session.startTransaction();
 
     try {
-        console.log("removeMember req.body: ", req.body);
-        console.log("removeMember api");
-
         const isAuthorized = await checkAuthorization(req.body.project_id, req.body.team_id, req.user.id);
         if (!isAuthorized) {
             return next(createError(403, "You are not allowed to remove the team member from this team!"));
         }
         
-        const member = await Member.findById(req.params.member_id);
+        const member = await Member.findById(req.params.member_id).populate({
+            path: "task",
+            select: "assign_by assign_to"
+        });
         if (!member) {
             return next(createError(404, "Member not found!"));
         }
@@ -305,46 +291,27 @@ export const removeMember = async (req, res, next) => {
             return next(createError(404, "Project not found!"));
         }
 
-        if (member.task && member.task.length > 0) {
-            await Promise.all(
-                member.task.map(async (task) => {
-                    console.log("task: ", task);
-                    // if(task.assign_by === req.body.user_id){
-                    //     console.log("task._id.toString(): ", task._id.toString());
-                    //     await Task.findByIdAndUpdate(
-                    //         task._id.toString(),
-                    //         {
-                    //             $pull: {
-                    //                 assign_by: req.body.user_id
-                    //             }
-                    //         },
-                    //         { new: true }
-                    //     );
-                    // }
+        if (member.task?.length > 0) {
+            for (const task of member.task) {
+                if(task.assign_by === req.body.user_id){
+                    await Task.findByIdAndUpdate(task._id.toString(), {
+                        $unset: { assign_by: "" },
+                    });
+                } else {
+                    await Task.findByIdAndUpdate(task._id.toString(), {
+                        $pull: { assign_to: req.body.user_id },
+                    });
+                }
+                await User.findByIdAndUpdate(
+                    req.body.user_id,
+                    {
+                        $pull: {
+                            task: task._id.toString(),
+                        }
+                    },
+                );
 
-                    // if(task.assign_to === req.body.user_id){
-                    //     await Task.findByIdAndUpdate(
-                    //         task._id.toString(),
-                    //         {
-                    //             $pull: {
-                    //                 assign_to: req.body.user_id
-                    //             }
-                    //         },
-                    //         { new: true }
-                    //     );
-                    // }
-
-                    await User.findByIdAndUpdate(
-                        req.body.user_id,
-                        {
-                            $pull: {
-                                task: task._id.toString(),
-                            },
-                        },
-                        { new: true }
-                    );
-                })
-            );
+            }
         }
 
         await User.findByIdAndUpdate(
@@ -355,7 +322,6 @@ export const removeMember = async (req, res, next) => {
                     team: req.body.team_id,
                 }
             },
-            { new: true }
         );
 
         await Member.findByIdAndDelete(req.params.member_id);
@@ -366,8 +332,14 @@ export const removeMember = async (req, res, next) => {
                     member: req.params.member_id,
                 }
             },
-            { new: true }
         );
+
+        const newNotification = new Notification({
+            link: project.id,
+            type: "Removed member from team",
+            message: `"You have been removed from project "${project.project_name.toUpperCase()}".`,
+        });
+        await newNotification.save();
 
         await session.commitTransaction();
         session.endSession();
