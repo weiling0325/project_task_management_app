@@ -122,7 +122,6 @@ export const assignTask = async (req, res, next) => {
 
         if (taskDetails.user_id.length > 0) {
             for (const user of taskDetails.user_id) {
-                console.log("user update: ", user);
                 await User.findByIdAndUpdate(taskDetails.user_id,
                     {
                         $push:
@@ -238,7 +237,6 @@ export const getTeamMemberTask = async (req, res, next) => {
 
 export const updateTask = async (req, res, next) => {
     try {
-        console.log("updateTask api");
         const task = await Task.findById(req.params.task_id)
             .populate("project", "created_by");
         if (!task) return next(createError(404, "This task is not found!"));
@@ -258,13 +256,11 @@ export const updateTask = async (req, res, next) => {
         if (!project) return next(createError(404, "Project not found!"));
 
         const files = req.files;
-        console.log("files length: ", files.length);
         const task_attachment = files.map((file) => ({
             filename: file.originalname,
             url: `/uploads/tasks/${file.filename}`,
             filetype: file.mimetype,
         }));
-        console.log("task_attachment : ", task_attachment);
         
         let isAuthorizedMember = false;
         project.assign_to.map(async (team) => {
@@ -286,10 +282,12 @@ export const updateTask = async (req, res, next) => {
         const assignToModified = removedAssignees.length > 0 || addedAssignees.length > 0;
 
         let involvedTeam = [];
+        const taskCreator = task.assign_by;
+        console.log("taskCreator: ", taskCreator);
         if (assignToModified) {
             project.assign_to.map(async (team) => {
                 team.member.map(async (member) => {
-                    if (newAssignees.has(member.user._id.toString())) {
+                    if (newAssignees.has(member.user._id.toString()) || member.user._id.toString() === taskCreator) {
                         involvedTeam.push(team._id.toString());
                     }
                 });
@@ -310,6 +308,10 @@ export const updateTask = async (req, res, next) => {
             });
 
             [...newAssignees].map(async (id) => {
+                if(id === task.assign_by.toString()) {
+                    return next(createError(403, "You cannot assign the task to task creator!"));
+                }
+
                 const addNotification = new Notification({
                     link: task.project._id.toString(),
                     type: "task",

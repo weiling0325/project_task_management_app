@@ -108,7 +108,6 @@ const User = styled.div`
 
 
 const Navbar = ({ menuOpen, setMenuOpen }) => {
-  const randomTagColor = tagColors[Math.floor(Math.random() * tagColors.length)];
   const [SignUpOpen, setSignUpOpen] = useState(false);
   const [SignInOpen, setSignInOpen] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
@@ -117,7 +116,6 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   const { currentUser } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
 
   const [notification, setNotification] = useState([]);
   useEffect(() => {
@@ -182,16 +180,13 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   const id2 = open2 ? "simple-popover" : undefined;
   const notificationClick = (event) => {
     setAnchorEl2(event.currentTarget);
+    setNotificationLength(0);
   };
 
   const notificationClose = () => {
     setAnchorEl2(null);
   };
-
-  // useEffect(() => {
-  //   setNotificationLength(0);
-  // }, [notificationClick])
-
+  
 
   return (
     <>

@@ -317,13 +317,23 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
                     setOpenUpdateTask(false);
                 }
             } catch (err) {
+              if (err.response?.status === 403) {
+                dispatch(
+                  openSnackbar({
+                      message: err.response?.data?.message || "You cannot assign the task to task creator!",
+                      severity: "error",
+                  })
+              );
+              } else {
                 dispatch(
                     openSnackbar({
                         message: err.response?.data?.message || "Failed to update the task.",
                         severity: "error",
                     })
                 );
+              }
             } finally {
+                setOpenUpdateTask(false);
                 setLoading(false);
                 setDisabled(false);
             } 
@@ -361,20 +371,17 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
     };
 
     useEffect(() => {
+      if (selectMember.length > 0) {
+        setNoAssignedMemberError(false);
+        setDisabled(false);
+      }
         setDisabled(!inputs.task_title || !inputs.priority || !inputs.duedate || !inputs.task_status);
-    }, [inputs]);
+    }, [inputs, selectMember]);
 
 
     useEffect(()=> {
         fetchProjectMember();
     },[]);
-
-    useEffect(() => {
-        if (selectMember.length > 0) {
-          setNoAssignedMemberError(false);
-          setDisabled(false);
-        }
-      }, [selectMember]);
 
 
     return (

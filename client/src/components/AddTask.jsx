@@ -296,16 +296,13 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
   };
 
   useEffect(() => {
-    setDisabled(!inputs.task_title || !inputs.priority || !inputs.duedate || !inputs.task_status);
-  }, [inputs]);
-
-  useEffect(() => {
     if (selectMember.length > 0) {
       setNoAssignedMemberError(false);
       setDisabled(false);
     }
-  }, [selectMember]);
-
+    setDisabled(!inputs.task_title || !inputs.priority || !inputs.duedate || !inputs.task_status);
+    console.log("disabled");
+  }, [inputs, selectMember]);
 
 
   return (

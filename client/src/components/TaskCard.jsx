@@ -159,6 +159,11 @@ const Project = styled.div`
   line-clamp: 5;
   -webkit-box-orient: vertical;
   padding: 6px;
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+    display: inline-block;  
+    border-radius: 8px;
+  }
 
   ${({ completed, theme }) =>
     completed === "Completed" &&
@@ -179,6 +184,11 @@ const Task = styled.div`
   line-clamp: 5;
   -webkit-box-orient: vertical;
   padding: 6px;
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+    display: inline-block;  
+    border-radius: 8px;
+  }
 
   ${({ completed, theme }) =>
     completed === "Completed" &&
@@ -582,7 +592,6 @@ return (
                     </span>
                   )).reduce((prev, curr) => [prev, ", ", curr]) 
                 : '-'}
-              {/* {task.team.length > 0 ? task.team.map((team) => team.team_name).join(", ") : '-'} */}
               </Team>
             </Card>
           ))

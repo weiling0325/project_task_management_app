@@ -177,6 +177,7 @@ const ProjectText = styled.div`
   &:hover {
     background-color: ${({ theme }) => theme.itemHover};
     display: inline-block;  
+    border-radius: 2px;
   }
 `;
 
@@ -662,7 +663,6 @@ const TaskDetails = () => {
                         <CommentTxt>{comment.comment_text}</CommentTxt>
                         <CommentTime>{formatDateTime(comment.comment_time)}</CommentTime>
                       </CommentRow>
-
                     </CommentData>
                   ))
                 )}

@@ -42,8 +42,6 @@ const MenuItem = styled.a`
   }
 `;
 
-
-
 const Button = styled.button`
   padding: 5px 18px;
   background-color: transparent;

@@ -63,6 +63,7 @@ const Project = styled.div`
   &:hover {
     background-color: ${({ theme }) => theme.itemHover};
     display: inline-block;  
+    border-radius: 2px;
   }
 `;
 
