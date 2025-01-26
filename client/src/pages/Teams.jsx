@@ -87,7 +87,6 @@ const Teams = () => {
     try {
       const res = await getUserTeam(token); 
       if (res.status === 200) {
-        console.log("Teams fetchData res.data.data", res.data.data);
         setItems(res.data.data); 
         setLoading(false);
       }

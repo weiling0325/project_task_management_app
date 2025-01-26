@@ -179,7 +179,6 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
     searchAccountByEmail({ search: e.target.value, token: token })
       .then((res) => {
         if (res.status === 200) {
-          console.log("searchAccountByEmail res.data:", res.data);
           const updatedUsers = res.data.map((user) => ({
             ...user,
             allowToAccess: false, 
@@ -219,7 +218,6 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
           })
         );
       } else if (response.status === 403) {
-        console.log("403 User is already a member of this project!");
         setInvitePopup(false);
         dispatch(
           openSnackbar({

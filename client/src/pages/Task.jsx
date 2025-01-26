@@ -25,7 +25,6 @@ const Tasks = () => {
       try {
         const response = await getUserTask(token); 
         setTasks(response.data.data);
-        console.log("getTasks response.data.data: ", response.data.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching tasks:", error);
@@ -44,10 +43,6 @@ const Tasks = () => {
         getTasks();
     }, []);
 
-    useEffect(() => {
-      console.log("getTasks useEffect tasks: ", tasks);
-      console.log("getTasks useEffect tasks length: ",tasks.length)
-    },[tasks]);
 
     return (
       <Container>

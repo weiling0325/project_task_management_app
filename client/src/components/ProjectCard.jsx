@@ -100,7 +100,6 @@ const Status = styled.div`
 const ProjectCard = ({ item }) => {
   const ref = useRef(null);
 
-  console.log("item", item);
   return (
     <Link to={`/project/${item._id}`} style={{ textDecoration: "none" }}>
       <Fragment>

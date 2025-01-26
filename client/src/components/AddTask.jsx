@@ -301,7 +301,6 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
       setDisabled(false);
     }
     setDisabled(!inputs.task_title || !inputs.priority || !inputs.duedate || !inputs.task_status);
-    console.log("disabled");
   }, [inputs, selectMember]);
 
 

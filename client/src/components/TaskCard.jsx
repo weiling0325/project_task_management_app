@@ -454,9 +454,6 @@ const TaskCard =({project_task, displayProjectColumn=false}) => {
     setTasks(tasksWithIndex);
   }, [project_task]);
   
-  useEffect(() => {
-    console.log("TaskCard useEffect tasks: ", tasks);
-  },[tasks]);
 
 return (
   <>

@@ -192,7 +192,6 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       try {
         signIn({ email, password }).then((res) => {
           if (res.status === 200) {
-            console.log("signIn res.data: ",res.data);
             dispatch(loginSuccess(res.data));
             setLoading(false);
             setDisabled(false);
@@ -384,7 +383,6 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         name: user.data.name,
         email: user.data.email,
       }).then((res) => {
-        console.log(res);
         if (res.status === 200) {
           dispatch(loginSuccess(res.data));
           setSignInOpen(false);

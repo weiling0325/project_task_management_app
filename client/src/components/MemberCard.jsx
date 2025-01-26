@@ -96,7 +96,6 @@ const TableHeaderContent = styled.div`
 
     useEffect(() => {
       if (team) {
-        console.log("MemberCard team: ", team);
         setMembers(team.member);
       }
     }, [team]);

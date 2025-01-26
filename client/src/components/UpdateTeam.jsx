@@ -103,8 +103,6 @@ const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
 
-    console.log("inputs", inputs);
-
     const goToAddTeam = () => {
         setShowAddTeam(true);
     };

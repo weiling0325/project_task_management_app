@@ -41,7 +41,6 @@ const TeamInvite = () => {
 
     useEffect(() => {
         verifyInvitation(code, user_id, team_id, member_role, allow_to_modify,).then((res) => {
-            console.log(res);
             if (res.status === 200) {
                 dispatch(openSnackbar({ message: res.data.Message, type: "success" }));
                 //navigate to project page

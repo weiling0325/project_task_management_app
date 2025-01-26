@@ -63,7 +63,7 @@ const Body = styled.div`
 
 
 const NotificationDialog = ({open, id, anchorEl, handleClose, currentUser, notification}) => {
-  
+  console.log("NotificationDialog notification: ", notification);
   return (
     <Popover
       anchorReference="anchorPosition"

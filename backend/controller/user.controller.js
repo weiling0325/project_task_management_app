@@ -24,7 +24,6 @@ export const getUserByToken = async(req, res, next) => {
             return res.status(404).json({ message: "User not found!" });
         }
         
-        console.log("getUserByToken: ", user); 
         res.status(200).json({ data: user });
     } catch (error){
         console.error("Error in getting user from his token: ", error.message);
@@ -93,23 +92,18 @@ export const deleteUser = async (req, res, next) => {
 
 export const getUserProject = async (req, res, next) => {
     try {
-        console.log("getUserProject api");
         const user = await User.findById(req.user.id).populate("project");
         if (!user) {
             return next(createError(404, "User not found"));
         }
-    
-        console.log("user", user.project);
         
         const projects = await Promise.all(
             user.project.map(async (findProject) => {
-                console.log("projectId", findProject._id.toString());
               const project = await Project.findById(findProject._id.toString()).populate({
                 path: "assign_to",
                 populate: [
                   {
                     path: "member",
-                    // select: "name email role",
                     populate: {
                       path: "user",
                       select: "name",
@@ -121,13 +115,10 @@ export const getUserProject = async (req, res, next) => {
                   },
                 ],
               });
-              console.log("project:", project);
               
               return project; 
             })
           );
-
-          console.log("projects:", projects);
           
         res.status(200).json({ projects });
     } catch (error) {
@@ -161,7 +152,6 @@ export const getUserTeam = async (req, res, next) => {
 
 export const getUserTask = async (req, res, next) => {
     try {
-        console.log("getUserTask api ");
         const user = await User.findById(req.user.id).populate({
             path: "task",
             select: "task_title priority duedate task_description task_status task_attachment",
@@ -185,7 +175,6 @@ export const getUserTask = async (req, res, next) => {
         });
         if (!user) return next(createError(404, "User not found"));
         
-        console.log("getUserTask user.task :", user.task);
         res.status(200).json({ data: user.task });
     } catch (error) {
         console.error("Error in getting user task: ", error.message);
@@ -209,7 +198,6 @@ export const getUserNotification = async (req, res, next) => {
 };
 
 export const searchAccountByEmail = async (req, res, next) => {
-    console.log("searchAccountByEmail api");
     const email = req.params.email;
     const users = [];
     try {

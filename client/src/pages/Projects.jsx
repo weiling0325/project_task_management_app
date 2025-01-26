@@ -98,7 +98,6 @@ const Projects = ({newProject,setNewProject}) => {
       .then((res) => {
         setData(res.data.projects);
         setLoading(false);
-        console.log("Projects ",res.data.projects);
       })
       .catch((err) => {
         setLoading(false);

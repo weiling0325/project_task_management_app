@@ -182,8 +182,6 @@ const AddNewProject = ({ setNewProject }) => {
     const project = { ...inputs };
 
     try {
-      
-      console.log("project", project);
       const res = await addProject({ project, token });
       if(res.status===200){
         setNewProject(false);

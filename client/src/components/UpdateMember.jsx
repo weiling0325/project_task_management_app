@@ -187,8 +187,6 @@ const UpdateMember = ({ project_id, team_id, setOpenUpdate, members }) => {
   }
 
   const removeTeamMember = async(member_id, user_id) => {
-    console.log("removeTeamMember member_id: ", member_id);
-    console.log("removeTeamMember, user_id: " , user_id);
     try {
       const input = { project_id: project_id, team_id: team_id, user_id: user_id };
       const res = await removeMember({member_id: member_id, member: input, token});

@@ -94,13 +94,13 @@ export const assignTask = async (req, res, next) => {
         await Project.findByIdAndUpdate(taskDetails.project_id,
             {
                 $push: { task: newTask._id.toString() }
-            }, { new: true }
+            },
         );
 
         const newNotification = new Notification({
             link: project.id,
             type: "Task Invitation",
-            message: `"${createdTaskUser.account.name}" assigned you to task "${newTask.task_title}"  in project "${project.project_name.toUpperCase()}".`,
+            message: `${createdTaskUser.account.name} assigned you to task "${newTask.task_title}"  in project "${project.project_name.toUpperCase()}".`,
         });
         await newNotification.save();
 
@@ -108,14 +108,15 @@ export const assignTask = async (req, res, next) => {
         await Member.findByIdAndUpdate(findMember._id.toString(),
             {
                 $push: { task: newTask._id.toString() }
-            }, { new: true }
+            }, 
         );
+
         const taskCreator = await Member.findOne({user:req.user.id});
         if(taskCreator) {
-            await Member.findByIdAndUpdate(findMember._id.toString(),
+            await Member.findByIdAndUpdate(taskCreator._id.toString(),
             {
                 $push: { task: newTask._id.toString() }
-            }, { new: true }
+            }, 
         );
         }
         
@@ -139,7 +140,7 @@ export const assignTask = async (req, res, next) => {
                             task: newTask.id,
                             notification: newNotification.id
                         }
-                    }, { new: true }
+                    }, 
                 );
             }
         }
@@ -302,7 +303,7 @@ export const updateTask = async (req, res, next) => {
             [...removedAssignees].map(async (id) => {
             const removeNotification = new Notification({
                 link: task.project._id.toString(),
-                type: "Removed member from task",
+                type: "Removed from task",
                 message: `${req.user.name} removed you from task "${task.task_title}".`,
             });
             removeNotification.save();
@@ -434,7 +435,7 @@ export const addTaskComment = async (req, res, next) => {
                 $push: {
                     task_comment: newComment
                 }
-            }, { new: true }
+            }, 
         );
 
         res.status(200).json({ message: "The task comment has been added..." })

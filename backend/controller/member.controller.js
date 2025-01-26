@@ -195,7 +195,7 @@ export const verifyInvitation = async (req, res, next) => {
                 $addToSet: {
                     member: newMember.id
                 },
-            }, { new: true }
+            }, 
         );
 
         await User.findByIdAndUpdate(
@@ -258,7 +258,7 @@ export const updateMember = async (req, res, next) => {
                     member_role: req.body.member_role,
                     allow_to_modify: req.body.allow_to_modify,
                 },
-            }, { new: true }
+            }, 
         );
         
         res.status(200).json({ data: updateMember });
@@ -296,33 +296,26 @@ export const removeMember = async (req, res, next) => {
                 if(task.assign_by === req.body.user_id){
                     await Task.findByIdAndUpdate(task._id.toString(), {
                         $unset: { assign_by: "" },
+                        $pull: {team: req.body.team_id}
                     });
                 } else {
                     await Task.findByIdAndUpdate(task._id.toString(), {
-                        $pull: { assign_to: req.body.user_id },
+                        $pull: { assign_to: req.body.user_id,
+                            team: req.body.team_id
+                         },
                     });
                 }
                 await User.findByIdAndUpdate(
                     req.body.user_id,
                     {
                         $pull: {
-                            task: task._id.toString(),
+                            task: task._id.toString()
                         }
                     },
                 );
 
             }
         }
-
-        await User.findByIdAndUpdate(
-            req.body.user_id,
-            {
-                $pull: {
-                    project: req.body.project_id,
-                    team: req.body.team_id,
-                }
-            },
-        );
 
         await Member.findByIdAndDelete(req.params.member_id);
         await Team.findByIdAndUpdate(
@@ -336,11 +329,24 @@ export const removeMember = async (req, res, next) => {
 
         const newNotification = new Notification({
             link: project.id,
-            type: "Removed member from team",
+            type: "Removed from team",
             message: `"You have been removed from project "${project.project_name.toUpperCase()}".`,
         });
         await newNotification.save();
 
+        await User.findByIdAndUpdate(
+            req.body.user_id,
+            {
+                $pull: {
+                    project: req.body.project_id,
+                    team: req.body.team_id,
+                },
+                $push :{
+                    notification: newNotification
+                }
+            },
+        );
+        
         await session.commitTransaction();
         session.endSession();
 

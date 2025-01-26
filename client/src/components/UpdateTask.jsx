@@ -238,8 +238,6 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
     const [noAssignedMemberError, setNoAssignedMemberError] = useState(false);
     const [removedAttachment, setRemovedAttachment] = useState([]);
 
-    console.log("UpdateTask project_task assign_to: ", project_task.assign_to);
-
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
 
@@ -261,7 +259,6 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
     };
 
     const UpdateProjectTask = async () => {
-        console.log("UpdateProjectTask UpdateProjectTask..");
         if (selectMember.length < 1) {
             setNoAssignedMemberError(true);
             setDisabled(true);
@@ -351,14 +348,11 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
     };
 
     const removeAttachment = (attachmentId) => {
-        console.log("removeAttachment attachmentId: ", attachmentId);
         setRemovedAttachment(attachmentId);
         setInputs((prev) => {
             const updatedAttachments = prev.task_attachment.filter((attachment) => {
-                console.log("Checking attachment: ", attachment); 
                 return attachment._id !== attachmentId;
             });
-            console.log("Updated task_attachment: ", updatedAttachments); 
             return {
                 ...prev,
                 task_attachment: updatedAttachments,

@@ -168,7 +168,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
     const dispatch = useDispatch();
     const token = localStorage.getItem("token");
 
-    console.log("openUpdate", openUpdate);
     useEffect(() => {
         if (openUpdate.type === "all") {
           setShowAddProject(true);
@@ -200,7 +199,6 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
               })
             );
         } else if (res.status === 403){
-          console.log("You are not authorized to update this project!");
             dispatch(
               openSnackbar({
                 message: `You are not allowed to update this project!`,

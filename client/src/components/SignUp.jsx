@@ -302,7 +302,6 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         name: user.data.name,
         email: user.data.email,
       }).then((res) => {
-        console.log(res);
         if (res.status === 200) {
           dispatch(loginSuccess(res.data));
           setSignUpOpen(false);

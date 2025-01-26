@@ -54,7 +54,6 @@ function App() {
   const [loading, setLoading] = useState(false);
 
   const { currentUser } = useSelector(state => state.user);
-  console.log("currentUser: ",currentUser);
   
   useEffect(() => {
     const resize = () => {

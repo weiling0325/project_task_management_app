@@ -13,8 +13,7 @@ import AccountDialog from "./AccountDialog";
 import NotificationDialog from "./NotificationDialog";
 import { getUserByToken, getUserNotification } from "../api/index";
 import { logout } from "../redux/userSlice";
-import { useNavigate } from "react-router-dom";
-import { tagColors } from "../data/data";
+import { CircularProgress } from "@mui/material";
 
 const Container = styled.div`
   position: sticky;
@@ -112,6 +111,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   const [SignInOpen, setSignInOpen] = useState(false);
   const [verifyEmail, setVerifyEmail] = useState(false);
   const [notificationLength, setNotificationLength] = useState(0);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
@@ -121,6 +121,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   useEffect(() => {
     getUserByToken(token).then((res) => {
       setUsers(res.data);
+      setLoading(false);
     }).catch((err) => {
       if (err.response.status === 401) {
         dispatch(logout())
@@ -191,6 +192,11 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   return (
     <>
       <Container>
+        {loading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px', height: '300px' }}>
+                  <CircularProgress />
+                </div>
+              ) : (
         <Wrapper>
           <IcoButton onClick={() => setMenuOpen(!menuOpen)}>
             <MenuIcon />
@@ -234,6 +240,7 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
             )}
           </User>
         </Wrapper>
+        )}
       </Container>
       {currentUser && (
         <AccountDialog

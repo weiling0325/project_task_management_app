@@ -63,7 +63,6 @@ const DateInfo = styled.div`
 
 const TeamOverviewCard = ({ item }) => {
   const ref = useRef(null);
-  console.log("item", item);
 
   return (
     <Link to={`/team/${item._id}`} style={{ textDecoration: "none" }}>

@@ -1,9 +1,12 @@
 import multer from "multer";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "C:/Users/sleepymiaomiao/Downloads/project_management_app/uploads"); 
+    cb(null, process.env.UPLOAD_PATH); 
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname)); 

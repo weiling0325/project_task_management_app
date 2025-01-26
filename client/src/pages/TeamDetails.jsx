@@ -194,7 +194,6 @@ const TeamDetails = () => {
     try {
       const res = await getTeam(team_id, token); 
       if(res.status === 200 ){
-        console.log("Team details res.data.data", res.data.data);
         setTeam(res.data.data); 
         setMember(res.data.data.member);
       }
@@ -215,7 +214,6 @@ const TeamDetails = () => {
     try {
       const res = await getTeamMemberTask(team_id, token);
       if (res.status === 200) {
-        console.log("fetchTeamTask res.data.data", res.data.data);
         setTasks(res.data.data);
       }
     }catch (err) {
@@ -253,15 +251,11 @@ const TeamDetails = () => {
   }
 
   const fetchAllData = async () => {
-    console.log("fetchAllData team_id: ", team_id);
     try {
       const [teamRes, taskRes] = await Promise.all([
         getTeam(team_id, token),
         getTeamMemberTask(team_id, token),
       ]);
-      console.log("fetchAllData teamRes.data.data", teamRes.data.data);
-      console.log("fetchAllData taskRes.data.data", taskRes.data.data);
-      console.log("fetchAllData taskRes.data.data", taskRes.data.data);
       setTeam(teamRes.data.data); 
       setMember(teamRes.data.data.member);
       setTasks(taskRes.data.data);
@@ -297,7 +291,6 @@ const TeamDetails = () => {
     }, [created, addNewTask]);
 
     useEffect(() => {
-      console.log("useEffect team:", team);
       fetchProjectMember();
     }, [team]);
 

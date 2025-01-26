@@ -608,9 +608,10 @@ const TaskDetails = () => {
                     <Label>Teams:</Label>
                   </Row>
                   <Row>
-                  {task.team.length > 0 && task.team.map((team) => (
+                  {task.team.length > 0 ? (
+                    task.team.map((team) => (
                     <Team key={team._id} onClick={() => getTeamDetail(team._id)}>{team.team_name}</Team>
-                  ))}
+                  ))): (<Null>-</Null>)}
                 </Row>
                 </Body>
               </Card>

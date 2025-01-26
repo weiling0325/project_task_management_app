@@ -4,6 +4,7 @@ import Member from "../models/member.model.js";
 import mongoose from "mongoose";
 import Team from "../models/team.model.js";
 import Task from "../models/task.model.js";
+import Notification from '../models/notification.model.js';
 
 export const addProject = async (req, res) => {
     const session = await mongoose.startSession(); 
@@ -21,12 +22,12 @@ export const addProject = async (req, res) => {
         });
         const savedProject = await newProject.save();
 
-        const newMember = new Member({
-            user: req.user.id,
-            member_role: "owner",
-            allow_to_modify: true
-        });
-        await newMember.save();
+        // const newMember = new Member({
+        //     user: req.user.id,
+        //     member_role: "owner",
+        //     allow_to_modify: true
+        // });
+        // await newMember.save();
 
         const updatedProject = await Project.findByIdAndUpdate(
             savedProject._id.toString(),
@@ -101,7 +102,6 @@ export const getProject = async (req, res) => {
 
         const isOwner = project.created_by._id.toString() === req.user.id;
         if (!isOwner && !isAuthorizedMember) {
-            console.log("You are not allowed to view this project!");
             return res.status(403).json({ message: "You are not allowed to view this project!" });
         }
 
@@ -167,11 +167,20 @@ const session = await mongoose.startSession();
             return res.status(403).json({ message: "Only project owner is allowed to delete this project!" });
         }
 
+        const newNotification = new Notification({
+            link: project.id,
+            type: "Deleted project",
+            message: `"${project.project_name.toUpperCase()}" project is deleted.`,
+        });
+        await newNotification.save();
+
+
         if(project.assign_to?.length > 0){
             for (const team of project.assign_to) {
                 for (const member of team.member) {
                     await User.findByIdAndUpdate(member.user._id.toString(), {
                         $pull: { project: id, team: team._id.toString() },
+                        $push: {notification: newNotification._id.toString()}
                     });
                     await Member.findByIdAndDelete(member._id.toString());
                 }
@@ -200,7 +209,6 @@ const session = await mongoose.startSession();
 
 export const getProjectMember= async (req, res) => {
     try {
-        console.log("getProjectMember api");
         const member_list = [];
         const project = await Project.findById(req.params.project_id)
         .populate([
@@ -251,7 +259,6 @@ export const getProjectMember= async (req, res) => {
             member_list.push(project.created_by);
         }
 
-        console.log("new member_list: ", member_list);
         res.status(200).json({ data: member_list });
     } catch (err) {
         console.error("Error getting project member:", err.message);

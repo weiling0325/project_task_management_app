@@ -3,6 +3,7 @@ import Project from "../models/project.model.js";
 import User from "../models/user.model.js";
 import Member from '../models/member.model.js';
 import Task from '../models/task.model.js';
+import Notification from '../models/notification.model.js';
 import { createError } from "../error.js";
 import mongoose from 'mongoose';
 
@@ -58,7 +59,6 @@ export const addTeam = async (req, res, next) => {
 
         const project = await getProjectById(req.body.project_id);
         if (!project) {
-            console.log("Project not found");
             return next(createError(404, "Project not found"));
         }
 
@@ -73,20 +73,16 @@ export const addTeam = async (req, res, next) => {
         });
 
         if (existingTeam) {
-            console.log("Existing team found:", existingTeam);
             return next(createError(400, "A team with this name already exists for the project."));
         }
 
-        console.log("Creating new team...");
         const newTeam = new Team({
             ...req.body.team,
             project: req.body.project_id,
         });
 
         const savedTeam = await newTeam.save();
-        console.log("New team saved:", savedTeam);
 
-        console.log("Updating project...");
         await Project.findByIdAndUpdate(
             req.body.project_id,
             {
@@ -97,7 +93,6 @@ export const addTeam = async (req, res, next) => {
             { new: true }
         );
 
-        console.log("Project updated successfully");
         res.status(200).json({ message: "Team successfully added!", data: savedTeam });
     } catch (err) {
         console.error("Error inviting a new team member:", err);
@@ -178,7 +173,6 @@ export const getTeam = async (req, res, next) => {
             return next(createError(404, "Team not found"));
         }
 
-        console.log("getTeam team:", team);
         res.status(200).json({ data: team });
     } catch (err) {
         console.error("Error getting team:", err.message);
@@ -197,7 +191,6 @@ export const deleteTeam = async (req, res, next) => {
         }
 
         const team = await getTeamById(req.params.team_id);
-
         if (!team) {
             return next(createError(404, "Team not found"));
         }
@@ -210,8 +203,8 @@ export const deleteTeam = async (req, res, next) => {
         if(team.member.length > 0){
             const removeNotification = new Notification({
                 link: project._id.toString(),
-                type: "Removed member from team",
-                message: `${req.user.name} removed you from team "${team.team_name}".`,
+                type: "Removed team",
+                message: `${team.team_name} is removed from project "${project.project_name.toUpperCase()}".`,
             });
             removeNotification.save();
 
@@ -237,7 +230,15 @@ export const deleteTeam = async (req, res, next) => {
                                 }
                             },
                         );
+
+                        await Project.findByIdAndUpdate(req.body.project_id,
+                        {
+                            $pull: {
+                                task: task._id.toString()
+                            }
+                        });
                     }
+                    
                 }
                 await User.findByIdAndUpdate(member.user._id, {
                     $pull: { project: req.body.project_id, team: req.params.team_id },

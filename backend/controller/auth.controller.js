@@ -93,9 +93,8 @@ export const googleAuthSignIn = async (req, res, next) => {
                     account: accountId, // Ensure the account is properly referenced
                 });
                 await newUser.save();
-                console.log("Account created: ", newAccount);
-                console.log("user created: ", newUser);
                 const token = jwt.sign({ id: newAccount._id }, process.env.JWT, { expiresIn: "9999 years" });
+                
                 res.status(200).json({ token, account: account });
             } catch (err) {
                 console.error("Error during account creation: ", err.message);
@@ -119,7 +118,6 @@ export const logout = (req, res) => {
 
 export const generateOTP = async (req, res, next) => {
     req.app.locals.OTP = await otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false, lowerCaseAlphabets: false, digits: true, });
-    console.log("req.app.locals.OTP: ", req.app.locals.OTP);
     const { email, name, reason } = req.query;
     if (!email || !name || !reason) { 
         return res.status(400).json({ message: "Email, name, and reason are required" }); 
@@ -196,10 +194,7 @@ export const generateOTP = async (req, res, next) => {
 
 export const verifyOTP = async (req, res, next) => {
     const { otp } = req.query;
-    console.log("code query: ", otp);
-    console.log("verifyOTP req.app.locals.OTP: ",req.app.locals.OTP);
     if (parseInt(otp) === parseInt(req.app.locals.OTP)) {
-        console.log("verifyOTP successfully");
         req.app.locals.OTP = null;
         req.app.locals.resetSession = true;
         res.status(200).send({ message: "OTP verified" });
@@ -239,15 +234,10 @@ export const findAccountByEmail = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
     if (!req.app.locals.resetSession) {
-        console.log("Session expired");
         return res.status(440).send({ message: "Session expired" });
     } else{
-        console.log("Session still valid");
         const email = req.body.email;
         const password = req.body.password;
-        console.log("email: ",email);
-        console.log("password: ", password);
-        // const { email, password } = req.body;
 
         try {
             await Account.findOne({ email }).then(account => {

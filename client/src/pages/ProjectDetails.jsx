@@ -199,7 +199,6 @@ const ProjectDetails = () => {
       setTeams(project.assign_to);
       setProjectOwner(project.created_by);
     } catch (err) {
-      console.log("fetchProject err: ", err);
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch project details.",
@@ -281,6 +280,8 @@ const ProjectDetails = () => {
     fetchAllData();
   },[project_id])
   
+  useEffect(()=> {
+  },[projectOwner]);
 
   const handleTeamAdded = () => {
     setInvitePopup(false);
@@ -341,7 +342,6 @@ const ProjectDetails = () => {
   };
 
   const handleTeamCardClick = (teamId) => {
-    console.log("handleTeamCardClick teamid: ", teamId);
     setExpandedTeamId((prevTeamId) => (prevTeamId === teamId ? null : teamId));
   };
   

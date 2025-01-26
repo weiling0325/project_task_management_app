@@ -176,7 +176,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 setOtpError('');
                 setOtpLoading(false);
                 setOtpSent(true);
-                console.log(res.data);
             } else {
                 dispatch(
                     openSnackbar({
@@ -199,7 +198,6 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
     }
 
     const validateOtp = () => {
-        console.log("validateOtp otp: ", otp);
         setOtpLoading(true);
         setDisabled(true);
         verifyOTP(otp).then((res) => {
