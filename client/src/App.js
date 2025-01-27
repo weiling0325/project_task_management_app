@@ -21,12 +21,10 @@ import ToastMessage from './components/ToastMessage';
 import { useSelector } from "react-redux";
 import AddNewTeam from './components/AddNewTeam';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import Home from './pages/Home/Home';
 import TeamInvite from './components/TeamInvite';
 import InviteMembers from "./components/InviteMembers";
 import AddNewProject from './components/AddNewProject';
-import TaskCard from "./components/TaskCard";
 import TaskDetails from "./components/TaskDetails";
 
 const Container = styled.div`
@@ -51,6 +49,7 @@ function App() {
   const [newTeam, setNewTeam] = useState(false);
   const [newProject, setNewProject] = useState(false);
   const {open, message, severity} = useSelector((state) => state.snackbar);
+  const [refreshMenu, setRefreshMenu] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { currentUser } = useSelector(state => state.user);
@@ -76,22 +75,22 @@ function App() {
           {currentUser ?
             <Container >
               {loading ? <div>Loading...</div> : <>
-                {menuOpen && <Menu setMenuOpen={setMenuOpen} setDarkMode={setDarkMode} darkMode={darkMode} setNewTeam={setNewTeam} />}
+                {menuOpen && <Menu setMenuOpen={setMenuOpen} setDarkMode={setDarkMode} darkMode={darkMode} setNewTeam={setNewTeam} refreshMenu={refreshMenu} />}
                 <Main>
                   <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
                   <Wrapper>
-                    {newTeam && <AddNewTeam setNewTeam={setNewTeam} />}
-                    {newProject && <AddNewProject setNewProject={setNewProject} />}
+                    {newTeam && <AddNewTeam setNewTeam={setNewTeam} setRefreshMenu={setRefreshMenu}/>}
+                    {newProject && <AddNewProject setNewProject={setNewProject} setRefreshMenu={setRefreshMenu}/>}
                     <Routes>
                       <Route >
-                        <Route exact path="/" element={<Dashboard newProject={newProject} setNewProject={setNewProject}/>} />
-                        <Route path="project" element={<Projects newProject={newProject} setNewProject={setNewProject}/>} />
+                        <Route exact path="/" element={<Dashboard newProject={newProject} setNewProject={setNewProject} setRefreshMenu={setRefreshMenu}/>} />
+                        <Route path="project" element={<Projects newProject={newProject} setNewProject={setNewProject} setRefreshMenu={setRefreshMenu}/>} />
                         <Route path="project">
-                          <Route path=":project_id" element={<ProjectDetails />} />
+                          <Route path=":project_id" element={<ProjectDetails setRefreshMenu={setRefreshMenu}/>} />
                         </Route>
                         <Route path="team" element={<Teams />} />
                         <Route path="team">
-                          <Route path=":team_id" element={<TeamDetails />} />
+                          <Route path=":team_id" element={<TeamDetails setRefreshMenu={setRefreshMenu}/>} />
                         </Route>
                         <Route path="team/invite">
                           <Route path=":code" element={<TeamInvite />} />

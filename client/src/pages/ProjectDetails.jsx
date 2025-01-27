@@ -157,7 +157,7 @@ line-height: 1.5;
 overflow: hidden;
 text-overflow: ellipsis;
 display: -webkit-box;
--webkit-line-clamp: 2; /* number of lines to show */
+-webkit-line-clamp: 2; 
 line-clamp: 2;
 -webkit-box-orient: vertical;
 `;
@@ -170,7 +170,7 @@ const ButtonsContainer = styled.div`
 `;
 
 
-const ProjectDetails = () => {
+const ProjectDetails = ({setRefreshMenu}) => {
   const { project_id } = useParams();
   const [project, setProject] = useState({});
   const [projectOwner, setProjectOwner] = useState("");
@@ -209,48 +209,16 @@ const ProjectDetails = () => {
     }
   };
 
-  const fetchProjectTask = async () => {
-    try {
-      const res = await getProjectTask(project_id, token);
-      setTasks(res.data.data);
-      setLoading(false);
-    } catch (err) {
-      dispatch(
-        openSnackbar({
-          message: err.response?.data?.message || "Failed to fetch tasks.",
-          severity: "error",
-        })
-      );
-      setLoading(false);
-    }
-  };
-
-  const fetchProjectMember = async () => {
-    await getProjectMember(project_id, token).
-      then((res) => {
-        if (res.status === 200) {
-          setProjectTeamMember(res.data.data);
-        }
-      })
-      .catch((err) => {
-        dispatch(
-          openSnackbar({
-            message: err.response?.data?.message || "Failed to fetch project members.",
-            severity: "error",
-          })
-        );
-      }).finally(() => setLoading(false));
-  };
 
   const fetchAllData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const [projectRes, taskRes, memberRes] = await Promise.all([
         getProject(project_id, token),
         getProjectTask(project_id, token),
         getProjectMember(project_id, token),
       ]);
-  
+
       const project = projectRes.data.data;
       setProject(project);
       setTeams(project.assign_to);
@@ -269,35 +237,17 @@ const ProjectDetails = () => {
       setLoading(false);
     }
   };
-  
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchAllData();
-  }, []);
 
   useEffect(() => {
+    console.log("useEffect project_id");
     window.scrollTo(0, 0);
     fetchAllData();
-  },[project_id])
-  
-  useEffect(()=> {
-  },[projectOwner]);
+}, [project_id, openUpdate, openDelete, invitePopup, openUpdateTeam, inviteMemberPopup, updateMemberPopUp, addNewTask, created]);
 
   const handleTeamAdded = () => {
     setInvitePopup(false);
     fetchProject();
   };
-  
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchProject();
-    fetchProjectMember();
-  }, [openUpdate, openDelete, invitePopup, openUpdateTeam, inviteMemberPopup, updateMemberPopUp, addNewTask]);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    fetchProjectTask();
-  }, [created, addNewTask]);
 
   const handleDeleteClick = () => {
     setOpenDelete({
@@ -348,9 +298,9 @@ const ProjectDetails = () => {
 
   return (
     <Container>
-      {openUpdate.state && <UpdateProject openUpdate={openUpdate} setOpenUpdate={setOpenUpdate} />}
-      {openUpdateTeam.state && <UpdateTeam projectId={project_id} openUpdate={openUpdateTeam} setOpenUpdate={setOpenUpdateTeam} />}
-      {openDelete.state && <DeletePopup openDelete={openDelete} setOpenDelete={setOpenDelete} />}
+      {openUpdate.state && <UpdateProject openUpdate={openUpdate} setOpenUpdate={setOpenUpdate} setRefreshMenu={setRefreshMenu}/>}
+      {openUpdateTeam.state && <UpdateTeam projectId={project_id} openUpdate={openUpdateTeam} setOpenUpdate={setOpenUpdateTeam} setRefreshMenu={setRefreshMenu}/>}
+      {openDelete.state && <DeletePopup openDelete={openDelete} setOpenDelete={setOpenDelete} setRefreshMenu={setRefreshMenu} />}
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px', height: '300px' }}>
           <CircularProgress />
@@ -385,6 +335,7 @@ const ProjectDetails = () => {
                 setNewTeam={setInvitePopup}
                 project_id={project_id}
                 onTeamAdded={handleTeamAdded}
+                setRefreshMenu={setRefreshMenu}
               />
             )}
           </Header>

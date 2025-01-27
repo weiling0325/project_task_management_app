@@ -6,8 +6,6 @@ import { Delete, Edit, PersonAdd } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 import { CircularProgress, IconButton } from "@mui/material";
 import AddTaskIcon from '@mui/icons-material/AddTask';
-import { useSelector } from "react-redux";
-import Avatar from "@mui/material/Avatar";
 import { openSnackbar } from "../redux/snackbarSlice";
 import { useDispatch } from "react-redux";
 import InviteMembers from "../components/InviteMembers";
@@ -172,7 +170,7 @@ const ButtonsContainer = styled.div`
 `;
 
 
-const TeamDetails = () => {
+const TeamDetails = ({setRefreshMenu}) => {
   const { team_id } = useParams();
   const [team, setTeam] = useState([]);
   const [member, setMember] = useState([]);
@@ -230,21 +228,28 @@ const TeamDetails = () => {
   };
 
   const fetchProjectMember = async () => {
-      await getProjectMember(team.project._id, token).
-        then((res) => {
-          if (res.status === 200) {
-            setProjectTeamMember(res.data.data);
-          }
-        })
-        .catch((err) => {
-          dispatch(
-            openSnackbar({
-              message: err.response?.data?.message || "Failed to fetch project members.",
-              severity: "error",
-            })
-          );
-        }).finally(() => setLoading(false));
-    };
+    const project_id = await team.project._id;
+    console.log("project_id:",project_id );
+    if (!project_id) {
+      console.error("team.project._id is undefined.");
+      setLoading(false);
+      return;
+    }
+    await getProjectMember(project_id, token).
+      then((res) => {
+        if (res.status === 200) {
+          setProjectTeamMember(res.data.data);
+        }
+      })
+      .catch((err) => {
+        dispatch(
+          openSnackbar({
+            message: err.response?.data?.message || "Failed to fetch project members.",
+            severity: "error",
+          })
+        );
+      }).finally(() => setLoading(false));
+  };
 
   const handleAddTask = () => {
     setAddNewTask(true);
@@ -273,22 +278,9 @@ const TeamDetails = () => {
   }
   
   useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  useEffect(() => {
-    fetchAllData();
-  }, [team_id, openUpdate, openDelete]);
-
-  useEffect(() => {
     window.scrollTo(0, 0);
-    fetchTeamDetails();
-  }, [openUpdate, openDelete]);
-
-  useEffect(() => {
-      window.scrollTo(0, 0);
-      fetchTeamTask();
-    }, [created, addNewTask]);
+    fetchAllData();
+  }, [team_id, openUpdate, openDelete, created, addNewTask]);
 
     useEffect(() => {
       fetchProjectMember();
@@ -297,8 +289,8 @@ const TeamDetails = () => {
 
   return (
     <Container>
-      {openUpdate.state && <UpdateTeam projectId={team.project._id} openUpdate={openUpdate} setOpenUpdate={setOpenUpdate} />}
-      {openDelete.state && <DeletePopup openDelete={openDelete} setOpenDelete={setOpenDelete} />}
+      {openUpdate.state && <UpdateTeam projectId={team.project._id} openUpdate={openUpdate} setOpenUpdate={setOpenUpdate} setRefreshMenu={setRefreshMenu}/>}
+      {openDelete.state && <DeletePopup openDelete={openDelete} setOpenDelete={setOpenDelete} setRefreshMenu={setRefreshMenu}/>}
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '12px 0px', height: '300px' }}>
           <CircularProgress />

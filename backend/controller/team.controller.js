@@ -31,6 +31,9 @@ const getTeamById = async (team_id) => {
 
 const isUserAuthorized = async (project, team, userId) => {
     const isOwner = project.created_by.toString() === userId;
+    if (isOwner) {
+        return true;
+    }
 
     const isAuthorizedMember = await Promise.all(
         project.assign_to.map(async (team) => 
@@ -43,13 +46,15 @@ const isUserAuthorized = async (project, team, userId) => {
     let isTeamMember = false;
     if (team) {
         const isTeamMember = team.member.some(
-            (member) => member.user._id.toString() === userId
+            (member) => member.user._id.toString() === userId && member.allow_to_modify
         );
 
-        if (isTeamMember) {
+        if (!isTeamMember) {
             return false; 
         }
     }
+    console.log("isUserAuthorized isOwner: ", isOwner);
+    console.log(" isUserAuthorized isAuthorizedMember: ", isAuthorizedMember);
 
     return isOwner || isAuthorizedMember;
 };

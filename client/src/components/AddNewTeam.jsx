@@ -104,7 +104,7 @@ const TextInput = styled.input`
   color: ${({ theme }) => theme.textSoft};
 `;
 
-const AddNewTeam = ({ setNewTeam, project_id  }) => {
+const AddNewTeam = ({ setNewTeam, project_id, setRefreshMenu }) => {
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [inputs, setInputs] = useState({ team_name: "", team_role: "" });
@@ -119,6 +119,7 @@ const AddNewTeam = ({ setNewTeam, project_id  }) => {
   const createTeam = async () => {
     setLoading(true);
     setDisabled(true);
+    setRefreshMenu(false);
     try {
       const teamData = {
         team_name: inputs.team_name,
@@ -133,6 +134,7 @@ const AddNewTeam = ({ setNewTeam, project_id  }) => {
           })
         );
         setNewTeam(false); 
+        setRefreshMenu(true);
       }
     } catch (err) {
       console.error("Error creating team:", err);

@@ -152,7 +152,7 @@ const CustomDatePickerWrapper = styled.div`
 `;
 
 
-const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
+const UpdateProject = ({ openUpdate, setOpenUpdate, setRefreshMenu }) => {
     const [Loading, setLoading] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const [inputs, setInputs] = useState({
@@ -184,6 +184,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
       };
       
     const UpdateProject = async() => {
+      setRefreshMenu(false);
       try {
         setLoading(true);
         setDisabled(true);
@@ -198,6 +199,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
                 type: "success",
               })
             );
+            setRefreshMenu(true);
         } else if (res.status === 403){
             dispatch(
               openSnackbar({
@@ -230,8 +232,8 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
     };
 
     useEffect(() => {
-        const { project_name, project_description, start_date, end_date, project_status } = inputs;
-        setDisabled(!project_name || !project_description || !start_date || !end_date || !project_status);
+        const { project_name, start_date, end_date, project_status } = inputs;
+        setDisabled(!project_name || !start_date || !end_date || !project_status);
       }, [inputs]);
 
     return (
@@ -266,7 +268,7 @@ const UpdateProject = ({ openUpdate, setOpenUpdate }) => {
                             </OutlinedBox>
                             <OutlinedBox style={{ marginTop: "6px" }}>
                                 <Desc
-                                    placeholder="Description (Required)* "
+                                    placeholder="Description"
                                     name="project_description"
                                     rows={5}
                                     value={inputs.project_description}

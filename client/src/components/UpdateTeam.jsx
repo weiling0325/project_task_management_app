@@ -92,7 +92,7 @@ const TextInput = styled.input`
   color: ${({ theme }) => theme.textSoft};
 `;
 
-const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
+const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate, setRefreshMenu }) => {
     const [Loading, setLoading] = useState(false);
     const [disabled, setDisabled] = useState(true);
     const [backDisabled, setBackDisabled] = useState(false);
@@ -123,6 +123,7 @@ const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
         setLoading(true);
         setDisabled(true);
         setBackDisabled(true);
+        setRefreshMenu(false);
         try {
             const team = {project_id: projectId, team_id: openUpdate.data._id, team_name: inputs.team_name, team_role: inputs.team_role};
             const res = await updateTeam({team_id: openUpdate.data._id, team: team, token:token});
@@ -135,6 +136,7 @@ const UpdateTeam = ({ id, projectId, openUpdate, setOpenUpdate }) => {
                         type: "success",
                     })
                 );
+                setRefreshMenu(true);
             }
         } catch (err) {
             if (err.response?.status === 403) {

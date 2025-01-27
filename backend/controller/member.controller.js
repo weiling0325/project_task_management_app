@@ -47,6 +47,9 @@ const checkAuthorization = async (project_id, team_id, user_id) => {
     if (!team) throw createError(404, "Team not found!");
 
     const isOwner = project.created_by.toString() === user_id;
+    if (isOwner) {
+        return true;
+    }
     
     const isAuthorizedMember = team.member?.some(
         (member) => member.user._id.toString() === user_id && member.allow_to_modify

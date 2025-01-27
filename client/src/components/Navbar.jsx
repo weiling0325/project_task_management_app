@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton } from "@mui/material";
@@ -11,7 +12,7 @@ import { useDispatch } from "react-redux";
 import Avatar from "@mui/material/Avatar";
 import AccountDialog from "./AccountDialog";
 import NotificationDialog from "./NotificationDialog";
-import { getUserByToken, getUserNotification } from "../api/index";
+import { getUserByToken, getUserNotification, getSearchResult } from "../api/index";
 import { logout } from "../redux/userSlice";
 import { CircularProgress } from "@mui/material";
 
@@ -47,6 +48,7 @@ const IcoButton = styled(IconButton)`
 
 const Search = styled.div`
   width: 40%;
+  position: relative; /* Enable positioning for the dropdown */
   @media screen and (max-width: 480px) {
     width: 50%;
   }
@@ -60,12 +62,13 @@ const Search = styled.div`
   color: ${({ theme }) => theme.textSoft};
   background-color: ${({ theme }) => theme.bgDark};
 `;
+
 const Input = styled.input`
   width: 100%;
   border: none;
   font-size: 16px;
   padding: 10px 20px;
-  border-radius: 100px;
+  border-radius: 8px;
   background-color: transparent;
   outline: none;
   color: ${({ theme }) => theme.textSoft};
@@ -104,6 +107,39 @@ const User = styled.div`
 }
 `;
 
+const Dropdown = styled.div`
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  right: 0;
+  background-color: ${({ theme }) => theme.bgLighter};
+  border: 0.5px solid ${({ theme }) => theme.soft + "99"};
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000; 
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px 15px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: 0.5px solid ${({ theme }) => theme.soft + "99"};
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+  }
+  a {
+    text-decoration: none;
+    color: ${({ theme }) => theme.textSoft};
+    flex-grow: 1;
+  }
+`;
+
 
 
 const Navbar = ({ menuOpen, setMenuOpen }) => {
@@ -112,12 +148,16 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
   const [verifyEmail, setVerifyEmail] = useState(false);
   const [notificationLength, setNotificationLength] = useState(0);
   const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.user);
   const [users, setUsers] = useState([]);
-  const token = localStorage.getItem("token");
-
   const [notification, setNotification] = useState([]);
+  const [searchResult, setSearchResult] = useState({ projects: [], teams: [], tasks: [] });
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const searchRef = useRef(null);
+
+  const { currentUser } = useSelector((state) => state.user);
+  const token = localStorage.getItem("token");
+  const dispatch = useDispatch();
+  
   useEffect(() => {
     getUserByToken(token).then((res) => {
       setUsers(res.data);
@@ -128,7 +168,6 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
       }
     });
   }, [dispatch]);
-
 
   const getNotifications = async () => {
     try {
@@ -188,6 +227,39 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
     setAnchorEl2(null);
   };
   
+  const handleSearch = async (e) => {
+    const searchQuery = e.target.value.trim(); 
+  
+    setSearchResult({ projects: [], teams: [], tasks: [] });
+  
+    if (!searchQuery) {
+      setIsDropdownOpen(false);
+      return; 
+    }
+    try {
+      const res = await getSearchResult(searchQuery, token);
+      setIsDropdownOpen(true);
+      if (res.status === 200) {
+        setSearchResult(res.data.data); 
+      }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+  
+  const handleClickOutside = (event) => {
+    if (searchRef.current && !searchRef.current.contains(event.target)) {
+      setIsDropdownOpen(false);
+    }
+  };
+  
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <>
@@ -201,9 +273,30 @@ const Navbar = ({ menuOpen, setMenuOpen }) => {
           <IcoButton onClick={() => setMenuOpen(!menuOpen)}>
             <MenuIcon />
           </IcoButton>
-          <Search>
-            <Input placeholder="Search" />
-            <SearchIcon style={{ marginRight: "20px", marginLeft: "20px" }} />
+          <Search ref={searchRef}>
+            <Input placeholder="Search" 
+            onChange={(e) => handleSearch(e)}
+            />
+            <SearchIcon style={{ marginRight: "20px", marginLeft: "20px", marginBotton: "0px"}} />
+            {isDropdownOpen && (searchResult.projects.length > 0 || searchResult.teams.length > 0 || searchResult.tasks.length > 0) && (
+              <Dropdown>
+                {searchResult?.projects.map((project) => (
+                  <DropdownItem key={project._id}>
+                    <Link to={`/project/${project._id}`}>{project.project_name}</Link>
+                  </DropdownItem>
+                ))}
+                {searchResult?.teams.map((team) => (
+                  <DropdownItem key={team._id}>
+                    <Link to={`/team/${team._id}`}>{team.team_name}</Link>
+                  </DropdownItem>
+                ))}
+                {searchResult?.tasks.map((task) => (
+                  <DropdownItem key={task._id}>
+                    <Link to={`/task/${task._id}`}>{task.task_title}</Link>
+                  </DropdownItem>
+                ))}
+              </Dropdown>
+            )}
           </Search>
           <User>
             {currentUser ? (

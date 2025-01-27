@@ -187,7 +187,7 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
           setMessage("");
         } else {
           setUsers([]);
-          setMessage(res.status);
+          // setMessage(res.status);
         }
       })
       .catch((err) => {
@@ -290,7 +290,7 @@ const InviteMembers = ({ setInvitePopup, id, projectId }) => {
               style={{ marginRight: "12px", marginLeft: "12px" }}
             />
           </Search>
-          {message && <div style={{ color: "red" }}>{message}</div>}
+          {/* {message && <div style={{ color: "red" }}>{message}</div>} */}
           <UsersList>
             {users?.map((user) => (
               <MemberCard key={user._id}>

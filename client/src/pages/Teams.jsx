@@ -108,6 +108,10 @@ const Teams = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    console.log("useEffect item: ",item);
+  },[item]);
+
 
   return (
     <Container>
@@ -117,7 +121,7 @@ const Teams = () => {
         </div>
       ) : (
         <Section>
-          <Team>
+          <Team key="item">
             <SectionTitle>Teams</SectionTitle>
             <CardGrid>
               {item.length > 0 ? (

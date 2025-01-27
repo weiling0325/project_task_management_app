@@ -189,7 +189,7 @@ const Span = Styled.span`
   color: ${({ theme }) => theme.primary};
 `;
 
-const Dashboard = ({ setNewProject, newProject }) => {
+const Dashboard = ({ setNewProject, newProject, setRefreshMenu }) => {
 
   const dispatch = useDispatch();
   const [projects, setProjects] = useState([]);
@@ -343,6 +343,7 @@ const Dashboard = ({ setNewProject, newProject }) => {
           {newProject && (
             <AddNewProject
               setNewProject={setNewProject}
+              setRefreshMenu={setRefreshMenu}
             />
           )}
         </Section>

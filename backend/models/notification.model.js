@@ -8,9 +8,6 @@ const notificationSchema = new mongoose.Schema({
   link: {
       type: String,
   },
-  // read_status: {
-  //     type: String
-  // },
   type: { type: String, required: true },
   },
   { 

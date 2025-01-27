@@ -30,11 +30,11 @@ const Role = styled.div`
 `;
 
 const Null = styled.div`
-  padding: 12px 10px;
+  padding: 0px 4px;
   font-size: 12px;
   font-weight: 400;
   color: ${({ theme }) => theme.textSoft};
-  margin: 5px 20px 0px 0px;
+  margin: 5px 20px 5px 0px;
 `;
 
 const MemberDetails = styled.div`

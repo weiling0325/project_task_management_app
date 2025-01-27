@@ -97,7 +97,7 @@ const Title = styled.h2`
 
 
 
-const Menu = ({ darkMode, setDarkMode, setMenuOpen }) => {
+const Menu = ({ darkMode, setDarkMode, setMenuOpen, refreshMenu }) => {
   const token = localStorage.getItem("token");
   const [project, setProject] = useState([]);
   const [team, setTeams] = useState([]);
@@ -131,7 +131,7 @@ const Menu = ({ darkMode, setDarkMode, setMenuOpen }) => {
 
   useEffect(() => {
     fecthData();
-  }, [currentUser]);
+  },[currentUser, refreshMenu]);
 
   return (
     <Container setMenuOpen={setMenuOpen}>
@@ -222,7 +222,6 @@ const Menu = ({ darkMode, setDarkMode, setMenuOpen }) => {
           Logout
         </Title>
         </div>
-        
         <Space />
       </ContainerWrapper>
     </Container >

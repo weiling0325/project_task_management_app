@@ -36,7 +36,8 @@ export const getUserNotification = async (token) =>
     await API.get('/user/getNotification', { headers: { "Authorization": `Bearer ${token}` }, withCredentials: true });
 export const searchAccountByEmail = async ({search, token}) => 
     await API.get(`/user/searchAccountByEmail/${search}`, { headers: { "Authorization": `Bearer ${token}` }, withCredentials: true });
-
+export const getSearchResult = async(search, token) => 
+    await API.get(`/user/get/search/${search}`, { headers: { "Authorization": `Bearer ${token}` }, withCredentials: true });
 
 // project
 export const addProject = async ({ project, token }) => 
@@ -83,8 +84,6 @@ export const getTeamMemberTask = async (team_id, token) =>
     await API.get(`/task/getTeamMemberTask/${team_id}`, { headers: { Authorization: `Bearer ${token}` } });
 export const updateTask = async ({ task_id, formData, token }) =>
     await API.post(`/task/update/${task_id}`, formData, { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } });
-// export const updateTask = async ({ task_id, task, token }) =>
-//     await API.post(`/task/update/${task_id}`, task, { headers: { Authorization: `Bearer ${token}` } });
 export const deleteTask = async ({ task_id, token }) =>
     await API.post(`/task/delete/${task_id}`, { headers: { Authorization: `Bearer ${token}` } });
 export const addTaskComment = async ({ task_id, comment, token }) =>

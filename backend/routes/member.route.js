@@ -4,10 +4,10 @@ import { inviteMember, verifyInvitation, getMember, updateMember, removeMember }
 
 const router = express.Router();
 
-router.post("/invite/:id", verifyToken, inviteMember);   //
+router.post("/invite/:id", verifyToken, inviteMember);   
 router.get("/invite/:code", verifyInvitation);  
 router.get("/get/:member_id", verifyToken, getMember);  
-router.post("/update/:member_id", verifyToken, updateMember);   //
-router.post("/remove/:member_id", verifyToken, removeMember);   //
+router.post("/update/:member_id", verifyToken, updateMember);   
+router.post("/remove/:member_id", verifyToken, removeMember);   
 
 export default router;

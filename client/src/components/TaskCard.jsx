@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import SearchIcon from "@mui/icons-material/Search";
-import CircularProgress from '@mui/material/CircularProgress';
 import { Avatar, Tooltip } from "@mui/material";
 import {formatDate} from '../api/utils';
 import { useState } from "react";
@@ -298,6 +297,13 @@ const Team = styled.div`
     `
     text-decoration: line-through;
     `}
+`;
+
+const TeamName = styled.span`
+  &:hover {
+    background-color: ${({ theme }) => theme.itemHover};
+    border-radius: 8px;
+  }
 `;
 
 const TableCell = styled.div`
@@ -604,11 +610,12 @@ return (
               <Team width="1">
               {task.team.length > 0
                 ? task.team.map((team, index) => (
-                    <span
-                      key={team._id} 
-                      onClick={() => { getTeamDetail(team); }}>
-                      {team.team_name}
-                    </span>
+                  <TeamName key={team._id}  onClick={() => { getTeamDetail(team); }}>{team.team_name}</TeamName>
+                    // <span
+                    //   key={team._id} 
+                    //   onClick={() => { getTeamDetail(team); }}>
+                    //   {team.team_name}
+                    // </span>
                   )).reduce((prev, curr) => [prev, ", ", curr]) 
                 : '-'}
               </Team>

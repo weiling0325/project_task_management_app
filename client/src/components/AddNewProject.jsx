@@ -156,7 +156,7 @@ const ErrorText = styled.div`
    margin: 5px 20px;
 `;
 
-const AddNewProject = ({ setNewProject }) => {
+const AddNewProject = ({ setNewProject, setRefreshMenu }) => {
   const [inputs, setInputs] = useState({
     project_name: "",
     project_description: "",
@@ -178,6 +178,7 @@ const AddNewProject = ({ setNewProject }) => {
   const CreateProject = async () => {
     setLoading(true);
     setDisabled(true);
+    setRefreshMenu(false);
 
     const project = { ...inputs };
 
@@ -186,6 +187,7 @@ const AddNewProject = ({ setNewProject }) => {
       if(res.status===200){
         setNewProject(false);
         dispatch(openSnackbar({ message: "Project created successfully", type: "success" }));
+        setRefreshMenu(true);
       }
     } catch (error) {
       console.error("Error creating project:", error);

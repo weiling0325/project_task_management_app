@@ -84,7 +84,7 @@ const Button = styled.button`
 `;
 
 
-const DeletePopup = ({ openDelete, setOpenDelete }) => {
+const DeletePopup = ({ openDelete, setOpenDelete, setRefreshMenu }) => {
   const [name, setName] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [disabled, setDisabled] = React.useState(true);
@@ -110,6 +110,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteProject = async () => {
+    setRefreshMenu(false);
     try {
       const res = await deleteProject({project_id: openDelete.project_id,  token:openDelete.token});
       if (res.status === 200) {
@@ -118,6 +119,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
             message: "Project deleted successfully",
             type: "success",
           }));
+          setRefreshMenu(true);
       }
       handleDeleteSuccess("/project");
     } catch (err) {
@@ -141,6 +143,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
   }
 
   const DeleteTeam = async () => {
+    setRefreshMenu(false);
     try {
       const res = await deleteTeam({project_id: openDelete.project_id, team_id: openDelete.team_id, token: openDelete.token});
       if (res.status === 200) {
@@ -150,6 +153,7 @@ const DeletePopup = ({ openDelete, setOpenDelete }) => {
             type: "success",
           }));
           handleDeleteSuccess("/project");
+          setRefreshMenu(true);
       }
     } catch (err){
       if (err.response?.status === 403) {

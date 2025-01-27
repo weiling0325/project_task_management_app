@@ -86,7 +86,7 @@ const OutlinedBox = styled.div`
   }
 `;
 
-const Projects = ({newProject,setNewProject}) => {
+const Projects = ({ newProject,setNewProject }) => {
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);

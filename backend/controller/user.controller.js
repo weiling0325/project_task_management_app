@@ -186,7 +186,8 @@ export const getUserNotification = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).populate({
             path: "notification",
-            select: "message link type"
+            select: "message link type",
+            options: { sort: { createdAt: -1 } } 
         });
         if (!user) return next(createError(404, "User not found"));
 
@@ -214,5 +215,48 @@ export const searchAccountByEmail = async (req, res, next) => {
       })
     } catch (err) {
       next(err);
+    }
+  }
+
+  export const getSearchResult = async(req, res) => {
+    try {
+        console.log("req.query.q: ",req.params.search);
+        const query = req.params.search;
+        if (!query) {
+            return res.status(400).json({ message: "Search query is required." });
+          }
+        console.log("req.user.id: ", req.user.id);
+        const user = await User.findById(req.user.id).populate({
+            path: "project",
+            select: "project_name"
+        }).populate({
+            path: "team",
+            select: "team_name"
+        }).populate({
+            path: "task",
+            select: "task_title"
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        
+        const projects = user.project.filter((p) =>
+            p.project_name.toLowerCase().includes(query.toLowerCase())
+        );
+        const teams = user.team.filter((t) =>
+            t.team_name.toLowerCase().includes(query.toLowerCase())
+        );
+        const tasks = user.task.filter((t) =>
+            t.task_name.toLowerCase().includes(query.toLowerCase())
+        );
+        console.log("getSearchResult projects: ", projects);
+        console.log("getSearchResult teams: ", teams);
+        console.log("getSearchResult tasks: ", tasks);
+
+        res.status(200).json({data: {projects, teams, tasks}});
+    } catch (err) {
+        console.error("Error in retrieving search results: ", err.message);
+        res.status(500).json({ message: err.message });
     }
   }
