@@ -255,7 +255,7 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
           dispatch(
             openSnackbar({
               message: "Task assigned successfully!",
-              severity: "success",
+              type: "success",
             })
           );
           setCreated(true);
@@ -266,7 +266,7 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
           dispatch(
             openSnackbar({
               message: "You cannot assign a task to yourself!",
-              severity: "error",
+              type: "error",
             })
           );
         } else {
@@ -274,7 +274,7 @@ const AddTask = ({ project_member, project_id, setCreated, setAddNewTask }) => {
           dispatch(
             openSnackbar({
               message: err.message || "An error occurred.",
-              severity: "error",
+              type: "error",
             })
           );
         }

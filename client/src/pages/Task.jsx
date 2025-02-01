@@ -32,7 +32,7 @@ const Tasks = () => {
         dispatch(
           openSnackbar({
             message: error.response?.data?.message || "Failed to load tasks.",
-            severity: "error",
+            type: "error",
           })
         );
       }

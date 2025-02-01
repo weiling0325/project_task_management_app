@@ -104,7 +104,7 @@ const Projects = ({ newProject,setNewProject }) => {
         dispatch(
           openSnackbar({
             message: err.response.data.message,
-            severity: "error",
+            type: "error",
           })
         );
       });

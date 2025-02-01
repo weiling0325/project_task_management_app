@@ -95,7 +95,7 @@ const Teams = () => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch team details",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {

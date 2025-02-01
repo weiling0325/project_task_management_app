@@ -200,7 +200,7 @@ const TeamDetails = ({setRefreshMenu}) => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch team details",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {
@@ -219,7 +219,7 @@ const TeamDetails = ({setRefreshMenu}) => {
         dispatch(
           openSnackbar({
             message: err.response?.data?.message || "Failed to fetch team details",
-            severity: "error",
+            type: "error",
           })
         );
     } finally {
@@ -245,7 +245,7 @@ const TeamDetails = ({setRefreshMenu}) => {
         dispatch(
           openSnackbar({
             message: err.response?.data?.message || "Failed to fetch project members.",
-            severity: "error",
+            type: "error",
           })
         );
       }).finally(() => setLoading(false));
@@ -269,7 +269,7 @@ const TeamDetails = ({setRefreshMenu}) => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to load data.",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {

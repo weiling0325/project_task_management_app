@@ -406,7 +406,7 @@ const TaskDetails = () => {
         dispatch(
           openSnackbar({
             message: err.response?.data?.message || "Failed to add the comment.",
-            severity: "error",
+            type: "error",
           })
         );
     } finally {
@@ -424,7 +424,7 @@ const TaskDetails = () => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch the task comment.",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {
@@ -445,7 +445,7 @@ const TaskDetails = () => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch the data.",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {

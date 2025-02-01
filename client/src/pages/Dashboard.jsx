@@ -236,7 +236,7 @@ const Dashboard = ({ setNewProject, newProject, setRefreshMenu }) => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to load data.",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {

@@ -168,7 +168,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 dispatch(
                     openSnackbar({
                         message: "OTP sent Successfully",
-                        severity: "success",
+                        type: "success",
                     })
                 );
                 setDisabled(true);
@@ -180,7 +180,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
                 dispatch(
                     openSnackbar({
                         message: res.status,
-                        severity: "error",
+                        type: "error",
                     })
                 );
                 setOtp('');
@@ -191,7 +191,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             dispatch(
                 openSnackbar({
                     message: err.message,
-                    severity: "error",
+                    type: "error",
                 })
             );
         });
@@ -216,7 +216,7 @@ const OTP = ({ email, name, otpVerified, setOtpVerified, reason }) => {
             dispatch(
                 openSnackbar({
                     message: err.message,
-                    severity: "error",
+                    type: "error",
                 })
             );
             setOtpError(err.message);

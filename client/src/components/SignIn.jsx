@@ -199,7 +199,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             dispatch(
               openSnackbar({
                 message: "Logged In Successfully",
-                severity: "success",
+                type: "success",
               })
             );
           } else if (res.status === 203) {
@@ -210,7 +210,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
             dispatch(
               openSnackbar({
                 message: "Account Not Verified",
-                severity: "error",
+                type: "error",
               })
             );
           } else {
@@ -227,7 +227,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
       }
@@ -236,7 +236,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       dispatch(
         openSnackbar({
           message: "Please fill all the fields",
-          severity: "error",
+          type: "error",
         })
       );
     }
@@ -314,7 +314,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
       });
@@ -330,7 +330,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           dispatch(
             openSnackbar({
               message: "Password Reset Successfully",
-              severity: "success",
+              type: "success",
             })
           );
           setShowForgotPassword(false);
@@ -344,7 +344,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
         setShowOTP(false);
@@ -374,7 +374,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
       });
@@ -389,7 +389,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           dispatch(
             openSnackbar({
               message: "Logged In Successfully",
-              severity: "success",
+              type: "success",
             })
           );
           setLoading(false);
@@ -398,7 +398,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
           dispatch(
             openSnackbar({
               message: res.data.message,
-              severity: "error",
+              type: "error",
             })
           );
           setLoading(false);
@@ -411,7 +411,7 @@ const SignIn = ({ setSignInOpen, setSignUpOpen }) => {
       dispatch(
         openSnackbar({
           message: errorResponse.error,
-          severity: "error",
+          type: "error",
         })
       );
     },

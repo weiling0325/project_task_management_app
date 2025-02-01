@@ -241,18 +241,15 @@ export const searchAccountByEmail = async (req, res, next) => {
             return res.status(404).json({ message: "User not found." });
         }
         
-        const projects = user.project.filter((p) =>
+        const projects = user?.project.filter((p) =>
             p.project_name.toLowerCase().includes(query.toLowerCase())
         );
-        const teams = user.team.filter((t) =>
+        const teams = user?.team.filter((t) =>
             t.team_name.toLowerCase().includes(query.toLowerCase())
         );
-        const tasks = user.task.filter((t) =>
-            t.task_name.toLowerCase().includes(query.toLowerCase())
+        const tasks = user?.task.filter((t) =>
+            t.task_title.toLowerCase().includes(query.toLowerCase())
         );
-        console.log("getSearchResult projects: ", projects);
-        console.log("getSearchResult teams: ", teams);
-        console.log("getSearchResult tasks: ", tasks);
 
         res.status(200).json({data: {projects, teams, tasks}});
     } catch (err) {

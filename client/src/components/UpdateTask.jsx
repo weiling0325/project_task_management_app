@@ -252,7 +252,7 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
                 dispatch(
                     openSnackbar({
                         message: err.response?.data?.message || "Failed to fetch project members.",
-                        severity: "error",
+                        type: "error",
                     })
                 );
             }).finally(() => setLoading(false));
@@ -308,7 +308,7 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
                     dispatch(
                         openSnackbar({
                             message: "Task updated successfully!",
-                            severity: "success",
+                            type: "success",
                         })
                     );
                     setOpenUpdateTask(false);
@@ -318,14 +318,14 @@ const UpdateTask = ({ task_id, project_task, setOpenUpdateTask }) => {
                 dispatch(
                   openSnackbar({
                       message: err.response?.data?.message || "You cannot assign the task to task creator!",
-                      severity: "error",
+                      type: "error",
                   })
               );
               } else {
                 dispatch(
                     openSnackbar({
                         message: err.response?.data?.message || "Failed to update the task.",
-                        severity: "error",
+                        type: "error",
                     })
                 );
               }

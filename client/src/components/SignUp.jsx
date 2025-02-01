@@ -169,7 +169,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           if (res.status === 200) {
             dispatch(loginSuccess(res.data));
             dispatch(
-              openSnackbar({ message: `OTP verified & Account created successfully`, severity: "success" })
+              openSnackbar({ message: `OTP verified & Account created successfully`, type: "success" })
             );
             setLoading(false);
             setDisabled(false);
@@ -189,7 +189,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
       }
@@ -206,7 +206,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
       dispatch(
         openSnackbar({
           message: "Please fill all the fields",
-          severity: "error",
+          type: "error",
         })
       );
     }
@@ -293,7 +293,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
         dispatch(
           openSnackbar({
             message: err.message,
-            severity: "error",
+            type: "error",
           })
         );
       });
@@ -308,7 +308,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           dispatch(
             openSnackbar({
               message: "Logged In Successfully",
-              severity: "success",
+              type: "success",
             })
           );
 
@@ -318,7 +318,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
           dispatch(
             openSnackbar({
               message: res.data.message,
-              severity: "error",
+              type: "error",
             })
           );
           setLoading(false);
@@ -330,7 +330,7 @@ const SignUp = ({ setSignUpOpen, setSignInOpen }) => {
       dispatch(
         openSnackbar({
           message: errorResponse.error,
-          severity: "error",
+          type: "error",
         })
       );
       setLoading(false);

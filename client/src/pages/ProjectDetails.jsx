@@ -202,7 +202,7 @@ const ProjectDetails = ({setRefreshMenu}) => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to fetch project details.",
-          severity: "error",
+          type: "error",
         })
       );
       setLoading(false);
@@ -230,7 +230,7 @@ const ProjectDetails = ({setRefreshMenu}) => {
       dispatch(
         openSnackbar({
           message: err.response?.data?.message || "Failed to load data.",
-          severity: "error",
+          type: "error",
         })
       );
     } finally {
